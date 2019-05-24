@@ -1,0 +1,62 @@
+version: 1
+
+actors:
+  - server
+  - poll_fms  # polling server
+  #- client
+
+server:
+  function: run_server
+  module: cco.integrator.server
+  port: 8123
+  routes:
+    - quit    # shutdown server
+    - poll    # pollable client
+    - default # process action message
+    #- forward # 
+  pollable_timeout: 10
+  #forward_mailbox: poll
+  #forward_url: ...
+
+  #routes:
+    #quit: quit
+    #poll:
+      #timeout: 10
+    #forward: poll # | client
+
+poll_fms:
+  function: serve
+  module: cco.integrator.polling
+  url: http://localhost:8123/poll
+  http_timeout: 30
+  sleep_on_excp: 30
+  sleep_on_idle: 0
+  target_mailbox: default
+
+scheduler:
+  receive_timeout: 10
+
+actions:
+  default: basic
+  basic:
+    - move_sepafile
+    - move_backup
+    - process_excel
+  move_sepafile:
+    function: move_file
+    source_dir: ../var/export/sepafiles
+    target_dir: data/sepafiles
+    backup_dir: ../var/export/sepafiles_bak
+  move_backup:
+    function: move_file
+    source_dir: ../var/backup
+    target_dir: data/backup
+    backup_dir: ../var/backup_bak
+  process_excel:
+    function: run_macro
+    module: cco.integrator.process_excel
+    source_dir: ../var/export/excel/templates
+    target_dir: ../var/export/excel/reports
+    error_dir: ../var/export/excel/errors
+    backup_dir: ../var/export/excel/backup
+    macro: Hauptprogramm
