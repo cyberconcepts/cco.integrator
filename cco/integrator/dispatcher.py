@@ -1,7 +1,7 @@
 '''
-Scheduler functions
+Dispatcher functions
   
-2019-04-19 helmutm@cy55.de
+2019-05-26 helmutm@cy55.de
 '''
 
 import glob

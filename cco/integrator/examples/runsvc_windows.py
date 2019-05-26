@@ -1,5 +1,5 @@
 '''
-Windows scheduler service, e.g. to
+Integrator service, e.g. to
   - copy/move files to target server/directory
   - start Excel and execute macro
   
@@ -15,29 +15,29 @@ import sys
 
 import win32serviceutil
 
-from cco.integrator import scheduler, winbase
+from cco.integrator import dispatcher, winbase
 
 
 class WinService(winbase.WinService):
     
     _svc_name_ = 'winsvc'
-    _svc_display_name_ = 'Windows scheduler Service'
-    _svc_description_ = 'Scheduler Service for processing files and data'
+    _svc_display_name_ = 'Application Integrator Service'
+    _svc_description_ = 'Integrator Service for processing files and data'
 
     def start(self):
-        self.actorMailbox = scheduler.init()
+        self.actorMailbox = dispatcher.init()
 
     def stop(self):
         self.actorMailbox.put('quit')
 
     def main(self):
-        scheduler.start(self.actorMailbox, 'windows')
+        dispatcher.start(self.actorMailbox, 'windows')
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        mailbox = scheduler.init()
-        scheduler.start(mailbox, 'windows')
+        mailbox = dispatcher.init()
+        dispatcher.start(mailbox, 'windows')
     else:
         win32serviceutil.HandleCommandLine(WinService)
 

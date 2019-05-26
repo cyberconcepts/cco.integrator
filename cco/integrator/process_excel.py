@@ -9,7 +9,7 @@ import os
 from os.path import basename, isfile, join
 import traceback
 
-from cco.integrator.scheduler import make_copy
+from cco.integrator.dispatcher import make_copy
 
 
 def run_macro(conf, logger):

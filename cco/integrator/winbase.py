@@ -14,14 +14,12 @@ import win32event
 import win32service
 import win32serviceutil
 
-from cco.integrator import scheduler
-
 
 class WinService(win32serviceutil.ServiceFramework):
     
     _svc_name_ = 'winsvc'
-    _svc_display_name_ = 'Windows scheduler Service'
-    _svc_description_ = 'Scheduler Service for processing files and data'
+    _svc_display_name_ = 'Windows Service'
+    _svc_description_ = 'Basic Service for processing files and data'
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
