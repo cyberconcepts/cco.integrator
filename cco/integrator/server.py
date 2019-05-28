@@ -1,5 +1,5 @@
 '''
-A simple webserver communicating with scheduler
+A simple webserver communicating with the top actor (dispatcher).
   
 2019-04-23 helmutm@cy55.de
 

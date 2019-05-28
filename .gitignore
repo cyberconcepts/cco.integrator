@@ -1,6 +1,11 @@
 *.pyc
 *.pyo
+bin/
+data/
 dist/
+etc/
+scripts/
+var/
 *.egg-info
 *.project
 *.swp

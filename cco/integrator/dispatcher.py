@@ -25,12 +25,13 @@ this_module = sys.modules[__name__]
 
 def getConfig(param):
     basePath = param.get('home', '.')
-    confData = loadYaml(join(basePath, 'config.yaml'))
+    confPath = join(basePath, 'etc')
+    confData = loadYaml(join(confPath, 'config.yaml'))
     if 'base_path' in confData:
         basePath = confData['base_path']
     else:
         confData['base_path'] = basePath
-    logging.config.dictConfig(loadYaml(join(basePath, 'logging.yaml')))
+    logging.config.dictConfig(loadYaml(join(confPath, 'logging.yaml')))
     return confData
 
 def init():
