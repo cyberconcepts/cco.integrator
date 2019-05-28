@@ -1,13 +1,16 @@
 version: 1
 
 actors:
-  - server
+  - webserver
   - poll_fms  # polling server
   #- client
+  #- worker
 
-server:
-  function: run_server
+webserver:
   module: cco.integrator.server
+  function: run_server
+  #module: cco.integrator.wsgi
+  #function: run_waitress
   port: 8123
   routes:
     - quit    # shutdown server
@@ -34,6 +37,9 @@ poll_fms:
   target_mailbox: default
 
 scheduler:
+  receive_timeout: 10
+
+worker:
   receive_timeout: 10
 
 actions:

@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0'
+version = '0.0.1'
 
 setup(name='cco.integrator',
       version=version,
@@ -25,6 +25,8 @@ setup(name='cco.integrator',
       install_requires=[
           'setuptools',
           'pyyaml',
+          'waitress',
+          'Werkzeug',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

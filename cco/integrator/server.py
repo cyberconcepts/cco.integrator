@@ -9,7 +9,6 @@ from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import json
 from logging import getLogger
 from Queue import Queue, Empty
-from threading import Thread
 
 
 def run_server(mailbox, receiver, logger, conf):
