@@ -16,11 +16,15 @@ handlers:
     maxBytes: 10MB
     backupCount: 3
 loggers:
-  service.scheduler:
+  integrator.common:
     level: INFO
     handlers: [console, file]
     propagate: no
-  service.server:
+  integrator.webserver:
+    level: INFO
+    handlers: [console, file]
+    propagate: no
+  waitress:
     level: INFO
     handlers: [console, file]
     propagate: no

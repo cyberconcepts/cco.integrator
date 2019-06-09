@@ -1,8 +1,7 @@
 '''
 A simple webserver communicating with the top actor (dispatcher).
   
-2019-04-23 helmutm@cy55.de
-
+2019-05-28 helmutm@cy55.de
 '''
 
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
@@ -59,5 +58,5 @@ class Handler(BaseHTTPRequestHandler):
         self.wfile.write('%s\n' % json.dumps(data))
 
     def log_message(self, format, *args):
-        logger = getLogger('service.server')
+        logger = getLogger('integrator.webserver')
         logger.info(' - %s - %s' % (self.client_address[0], format % args))

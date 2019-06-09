@@ -18,10 +18,11 @@ import win32serviceutil
 home = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, home)
 
-from cco.integrator import dispatcher, winbase
+from cco.integrator import dispatcher, 
+from cco.integrator.windows import base
 
 
-class WinService(winbase.WinService):
+class WinService(base.WinService):
     
     _svc_name_ = 'winsvc'
     _svc_display_name_ = 'Application Integrator Service'

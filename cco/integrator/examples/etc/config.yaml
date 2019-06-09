@@ -7,9 +7,9 @@ actors:
   #- worker
 
 webserver:
-  module: cco.integrator.server
+  module: cco.integrator.webserver.simple
   function: run_server
-  #module: cco.integrator.wsgi
+  #module: cco.integrator.webserver.wsgi
   #function: run_waitress
   port: 8123
   routes:
@@ -18,21 +18,30 @@ webserver:
     - default # process action message
     #- forward # 
   pollable_timeout: 10
-  #forward_mailbox: poll
-  #forward_url: ...
 
   #routes:
-    #quit: quit
+    #rules:
+      #- quit
+      #- poll
+      #- default
+    #quit:
+      #path: /quit
+      #function: do_quit
     #poll:
+      #path: /poll
+      #function: do_poll
       #timeout: 10
-    #forward: poll # | client
+    #default:
+      #path: <msg>
+      #function: do_forward
+      #clients: ...
 
 poll_fms:
   function: serve
   module: cco.integrator.polling
   url: http://localhost:8123/poll
   http_timeout: 30
-  sleep_on_excp: 30
+  sleep_on_excp: 10
   sleep_on_idle: 0
   target_mailbox: default
 
@@ -60,7 +69,7 @@ actions:
     backup_dir: ../var/backup_bak
   process_excel:
     function: run_macro
-    module: cco.integrator.process_excel
+    module: cco.integrator.windows.process_excel
     source_dir: ../var/export/excel/templates
     target_dir: ../var/export/excel/reports
     error_dir: ../var/export/excel/errors

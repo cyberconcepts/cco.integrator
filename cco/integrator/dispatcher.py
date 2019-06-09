@@ -39,9 +39,8 @@ def init():
 
 def start(mailbox, param):
     conf = getConfig(param)
-    logger = getLogger('service.scheduler')
+    logger = getLogger('integrator.common')
     actors = []
-    #server.start(conf.get('server', {}), mailbox)
     #p = Thread(target=listener, args=[mailbox])
     #p.start()
     actors += start_actors(mailbox, logger, conf)
