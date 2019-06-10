@@ -18,32 +18,36 @@ import time
 import traceback
 import yaml
 
-import cco.integrator.server
 
 this_module = sys.modules[__name__]
 
 
-def getConfig(param):
+def loadConfig(param):
     basePath = param.get('home', '.')
     confPath = join(basePath, 'etc')
-    confData = loadYaml(join(confPath, 'config.yaml'))
-    if 'base_path' in confData:
-        basePath = confData['base_path']
-    else:
-        confData['base_path'] = basePath
-    logging.config.dictConfig(loadYaml(join(confPath, 'logging.yaml')))
+    confName = param.get('config', 'config.yaml')
+    confData = loadYaml(join(confPath, confName))
+    logConf = loadYaml(join(confPath, 'logging.yaml'))
+    logging.config.dictConfig(logConf)
     return confData
 
 def init():
     return Queue()
 
-def start(mailbox, param):
-    conf = getConfig(param)
+def setup(mailbox, param):
+    conf = loadConfig(param)
     logger = getLogger('integrator.common')
-    actors = []
-    #p = Thread(target=listener, args=[mailbox])
-    #p.start()
-    actors += start_actors(mailbox, logger, conf)
+    actors = start_actors(mailbox, logger, conf)
+    return conf, logger, actors
+
+def startThread(mailbox, param):
+    conf, logger, actors = setup(mailbox, param)
+    p = Thread(target=listener, args=[mailbox, logger, conf])
+    p.start()
+    return [(p, mailbox)] + actors
+
+def start(mailbox, param):
+    conf, logger, actors = setup(mailbox, param)
     listener(mailbox, logger, conf)
     for (p, mb) in actors:
         if mb:
@@ -52,9 +56,10 @@ def start(mailbox, param):
 
 def listener(mailbox, logger, conf):
     logger.info('listening.')
-    schedConf = conf.get('scheduler', {})
+    schedConf = conf.get('dispatcher', {})
     actions = conf.get('actions', {})
-    while process(mailbox, logger, schedConf.get('receive_timeout', 15), actions):
+    timeout = schedConf.get('receive_timeout', 15)
+    while process(mailbox, logger, timeout, actions):
         pass
 
 def process(mailbox, logger, timeout, actions):
