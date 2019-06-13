@@ -5,22 +5,12 @@ formatters:
 handlers:
   console:
     class: logging.StreamHandler
-    level: DEBUG
     formatter: simple
     stream: ext://sys.stdout
-loggers:
-  integrator.common:
-    level: INFO
-    handlers: [console]
-    propagate: no
-  integrator.webserver:
-    level: INFO
-    handlers: [console]
-    propagate: no
-  waitress:
-    level: INFO
-    handlers: [console]
-    propagate: no
+  queue:
+    class: cco.integrator.testing.logger.QueueHandler
+    formatter: simple
 root:
   level: DEBUG
-  handlers: [console]
+  handlers: [queue]
+  #handlers: [console, queue]
