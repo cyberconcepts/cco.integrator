@@ -22,11 +22,13 @@ class Test(TestCase):
 
     def setUp(self):
         loggerQueue.clear()
-        ctx = context.setup(system='linux', home=home, cfgname='config.yaml')
-        self.actors = dispatcher.startThread(ctx)
+        self.context = context.setup(
+                system='linux', home=home, cfgname='config.yaml')
+        dispatcher.startThread(self.context)
 
     def tearDown(self):
-        for (p, mb) in self.actors:
+        self.context.mailbox.put('quit')
+        for (p, mb) in self.context.children:
             if mb:
                 mb.put('quit')
         wait()

@@ -30,10 +30,9 @@ class WinService(base.WinService):
 
     def start(self):
         self.context = context.setup(system='windows', home=home)
-        self.actorMailbox = self.context.mailbox
 
     def stop(self):
-        self.actorMailbox.put('quit')
+        self.context.mailbox.put('quit')
 
     def main(self):
         dispatcher.start(self.context)
