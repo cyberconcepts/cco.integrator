@@ -7,11 +7,10 @@ Application Integrator (Linux version):
 
 from os.path import abspath, dirname
 
-from cco.integrator import dispatcher
+from cco.integrator import context, dispatcher
 
 home = abspath(dirname(dirname(__file__)))
 
 if __name__ == '__main__':
-    mailbox = dispatcher.init()
-    dispatcher.start(mailbox, dict(system='linux', home=home))
-
+    ctx = context.setup(system='linux', home=home)
+    dispatcher.start(ctx)

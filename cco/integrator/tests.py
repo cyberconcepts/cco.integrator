@@ -10,7 +10,7 @@ from collections import deque
 from os.path import abspath, dirname, join
 import time
 
-from cco.integrator import dispatcher
+from cco.integrator import context, dispatcher
 
 home = join(dirname(abspath(__file__)), 'testing')
 
@@ -22,10 +22,8 @@ class Test(TestCase):
 
     def setUp(self):
         loggerQueue.clear()
-        self.mailbox = dispatcher.init()
-        self.actors = dispatcher.startThread(
-                self.mailbox, 
-                dict(system='linux', home=home, config='config.yaml'))
+        ctx = context.setup(system='linux', home=home, cfgname='config.yaml')
+        self.actors = dispatcher.startThread(ctx)
 
     def tearDown(self):
         for (p, mb) in self.actors:

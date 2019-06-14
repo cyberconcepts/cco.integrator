@@ -18,7 +18,7 @@ import win32serviceutil
 home = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, home)
 
-from cco.integrator import dispatcher, 
+from cco.integrator import context, dispatcher
 from cco.integrator.windows import base
 
 
@@ -29,19 +29,20 @@ class WinService(base.WinService):
     _svc_description_ = 'Integrator Service for processing files and data'
 
     def start(self):
-        self.actorMailbox = dispatcher.init()
+        self.context = context.setup(system='windows', home=home)
+        self.actorMailbox = self.context.mailbox
 
     def stop(self):
         self.actorMailbox.put('quit')
 
     def main(self):
-        dispatcher.start(self.actorMailbox, dict(system='windows', home=home))
+        dispatcher.start(self.context)
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        mailbox = dispatcher.init()
-        dispatcher.start(mailbox, dict(system='windows', home=home))
+        ctx = context.setup(system='windows', home=home)
+        dispatcher.start(ctx)
     else:
         win32serviceutil.HandleCommandLine(WinService)
 

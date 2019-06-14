@@ -12,5 +12,6 @@ handlers:
     formatter: simple
 root:
   level: DEBUG
-  handlers: [queue]
-  #handlers: [console, queue]
+  handlers:
+    - queue
+    #- console

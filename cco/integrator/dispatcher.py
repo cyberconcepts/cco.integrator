@@ -25,7 +25,7 @@ this_module = sys.modules[__name__]
 def loadConfig(param):
     basePath = param.get('home', '.')
     confPath = join(basePath, 'etc')
-    confName = param.get('config', 'config.yaml')
+    confName = param.get('cfgname', 'config.yaml')
     confData = loadYaml(join(confPath, confName))
     logConf = loadYaml(join(confPath, 'logging.yaml'))
     logging.config.dictConfig(logConf)
@@ -40,15 +40,15 @@ def setup(mailbox, param):
     actors = start_actors(mailbox, logger, conf)
     return conf, logger, actors
 
-def startThread(mailbox, param):
-    conf, logger, actors = setup(mailbox, param)
-    p = Thread(target=listener, args=[mailbox, logger, conf])
+def startThread(ctx):
+    actors = start_actors(ctx.mailbox, ctx.logger, ctx.config)
+    p = Thread(target=listener, args=[ctx.mailbox, ctx.logger, ctx.config])
     p.start()
-    return [(p, mailbox)] + actors
+    return [(p, ctx.mailbox)] + actors
 
-def start(mailbox, param):
-    conf, logger, actors = setup(mailbox, param)
-    listener(mailbox, logger, conf)
+def start(ctx):
+    actors = start_actors(ctx.mailbox, ctx.logger, ctx.config)
+    listener(ctx.mailbox, ctx.logger, ctx.config)
     for (p, mb) in actors:
         if mb:
             mb.put('quit')
