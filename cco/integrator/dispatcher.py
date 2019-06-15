@@ -15,18 +15,20 @@ import sys
 import time
 import traceback
 
+from cco.integrator import context
+
 
 this_module = sys.modules[__name__]
 
 
 def startThread(ctx):
-    ctx.children = start_actors(ctx)
+    start_actors(ctx)
     p = Thread(target=listener, args=[ctx])
     p.start()
     return (p, ctx.mailbox)
 
 def start(ctx):
-    ctx.children = start_actors(ctx)
+    start_actors(ctx)
     listener(ctx)
     for (p, mb) in ctx.children:
         if mb:
@@ -73,18 +75,16 @@ def processActions(actions, logger, msg):
 
 def start_actors(ctx):
     conf = ctx.config
-    actors = []
     for actor in conf.get('actors', []):
         act = conf.get(actor, {})
-        ctx.logger.debug('starting actor %s.' % actor)
+        ctx.logger.debug('starting actor %s; config=%s.' % (actor, act))
         modSpec = act.get('module')
         module = modSpec and import_module(modSpec) or this_module
         fct = getattr(module, act['function'])
-        mb = Queue()
-        p = Thread(target=fct, args=[mb, ctx.mailbox, ctx.logger, act])
+        childCtx = context.setupChild(ctx, act)
+        p = Thread(target=fct, args=[childCtx])
         p.start()
-        actors.append((p, mb))
-    return actors
+        ctx.children.append((p, childCtx.mailbox))
 
 # predefined actions
 

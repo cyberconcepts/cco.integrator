@@ -11,7 +11,10 @@ from time import sleep
 import urllib2
 
 
-def serve(mailbox, receiver, logger, conf):
+def serve(ctx):
+    mailbox = ctx.mailbox
+    logger = ctx.logger
+    conf = ctx.config
     url = conf.get('url', 'http://localhost:8123/poll')
     timeout = conf.get('http_timeout', 30)
     sleep_excp = conf.get('sleep_on_excp', 30)
@@ -23,19 +26,21 @@ def serve(mailbox, receiver, logger, conf):
             resp = get_data(url, timeout)
         except urllib2.URLError, e:
             logger.warn('polling: URL = %s => error %s.' % (url, e.reason))
-            if check_mailbox(mailbox) != 'quit':
+            if check_mailbox(mailbox) == 'quit':
+                ctx.parent_mb.put('quit')
                 return
             sleep(sleep_excp)
             continue
         if resp is None:    # timeout
             logger.warn('polling: no response from %s.' % url)
-            if check_mailbox(mailbox) != 'quit':
+            if check_mailbox(mailbox) == 'quit':
+                ctx.parent_mb.put('quit')
                 return
             sleep(sleep_excp)
         elif resp.get('result') == 'idle':
             sleep(sleep_idle)
         else:
-            receiver.put(resp['message'])
+            ctx.parent_mb.put(resp['message'])
             sleep(sleep_data)
         active = check_mailbox(mailbox) != 'quit'
 

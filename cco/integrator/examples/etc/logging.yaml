@@ -16,7 +16,7 @@ handlers:
     maxBytes: 10MB
     backupCount: 3
 loggers:
-  integrator.common:
+  cco.integrator:
     level: INFO
     handlers: [console, file]
     propagate: no

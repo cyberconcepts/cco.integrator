@@ -11,21 +11,36 @@ from Queue import Queue
 import yaml
 
 
-def setup(home, **kw):
-    return Context(home, **kw)
+def setup(**kw):
+    return Context(**kw)
+
+def setupChild(p, config=None, logger=None):
+    return setup(
+        config=config or p.config,
+        logger=logger or p.logger,
+        home=p.home,
+        system=p.system,
+        parent_mb=p.mailbox,
+        services=p.services,
+        registry=p.registry
+    )
 
 
 class Context(object):
 
-    def __init__(self, home, system='dummy', cfgname='config.yaml', **kw):
+    def __init__(self, home='.', system='dummy', cfgname='config.yaml', 
+                 registry=None, services=None, parent_mb=None,
+                 config=None, logger=None, 
+                 mailbox=None, children=None):
         self.home = home
         self.system = system
-        self.config = kw.get('config', loadConfig(home, cfgname))
-        self.logger = getLogger('cco.integrator')
-        self.services = {}
-        self.registry = {}
-        self.mailbox = Queue()
-        self.children = []
+        self.registry = registry or {}
+        self.services = services or {}
+        self.parent_mb = parent_mb
+        self.config = config or loadConfig(home, cfgname)
+        self.logger = logger or getLogger('cco.integrator')
+        self.mailbox = mailbox or Queue()
+        self.children = children or []
 
 
 def loadConfig(home, name):

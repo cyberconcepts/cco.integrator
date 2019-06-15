@@ -10,13 +10,13 @@ from logging import getLogger
 from Queue import Queue, Empty
 
 
-def run_server(mailbox, receiver, logger, conf):
-    port = conf.get('port', 8000)
+def run_server(ctx):
+    port = ctx.config.get('port', 8000)
     httpd = HTTPServer(('localhost', port), Handler)
     httpd.active = True
-    httpd.actorMailbox = mailbox
-    httpd.parent_mb = receiver
-    httpd.config = conf
+    httpd.actorMailbox = ctx.mailbox
+    httpd.parent_mb = ctx.parent_mb
+    httpd.config = ctx.config
     # httpd.timeout = ...
     while httpd.active:
         httpd.handle_request()

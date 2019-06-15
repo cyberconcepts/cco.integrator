@@ -7,10 +7,10 @@ actors:
   #- worker
 
 webserver:
-  module: cco.integrator.webserver.simple
-  function: run_server
-  #module: cco.integrator.webserver.wsgi
-  #function: run_waitress
+  #module: cco.integrator.webserver.simple
+  #function: run_server
+  module: cco.integrator.webserver.wsgi
+  function: run_waitress
   port: 8123
   routes:
     - quit    # shutdown server
