@@ -1,24 +1,19 @@
 version: 1
 
-#actors:
+actors:
+  - check-dir
 #  - webserver
+
+check-dir:
+  module: cco.integrator.checker
+  path: data
+  action: move-file
 
 webserver:
   module: cco.integrator.webserver.wsgi
-  function: run_waitress
+  start: run_waitress
   port: 8123
   routes:
-    - quit    # shutdown server
-    - poll    # pollable client
-    - default # process action message
-    - forward # 
-  pollable_timeout: 10
-
-  routes:
-    rules:
-      - quit
-      - poll
-      - default
     quit:
       path: /quit
       function: do_quit
@@ -32,7 +27,7 @@ webserver:
       clients: ...
 
 poll_fms:
-  function: serve
+  start: serve
   module: cco.integrator.polling
   url: http://localhost:8123/poll
   http_timeout: 30
@@ -44,13 +39,8 @@ dispatcher:
   receive_timeout: 10
 
 worker:
-  receive-timeout: 10
-
-actions:
-  default: basic
-  basic:
-    - move-file
-  move-file:
-    function: move_file
-    source_dir: data/source
-    target_dir: data/target
+  module: cco.integrator.worker
+  actions:
+    move-file:
+      function: move_file
+      target-path: data/target

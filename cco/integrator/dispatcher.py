@@ -5,7 +5,6 @@ Dispatcher functions
 '''
 
 import glob
-from importlib import import_module
 from threading import Thread
 from Queue import Queue, Empty
 import os
@@ -15,7 +14,7 @@ import sys
 import time
 import traceback
 
-from cco.integrator import context
+from cco.integrator import actor, context
 
 
 this_module = sys.modules[__name__]
@@ -38,12 +37,12 @@ def start(ctx):
 def listener(ctx):
     ctx.logger.info('listening.')
     schedConf = ctx.config.get('dispatcher', {})
-    actions = ctx.config.get('actions', {})
     timeout = schedConf.get('receive_timeout', 15)
-    while process(ctx.mailbox, ctx.logger, timeout, actions):
+    actions = ctx.config.get('actions', {})
+    while step(ctx.mailbox, ctx.logger, timeout, actions):
         pass
 
-def process(mailbox, logger, timeout, actions):
+def step(mailbox, logger, timeout, actions):
     try:
         msg = mailbox.get(timeout=timeout)
     except Empty:
@@ -58,6 +57,9 @@ def process(mailbox, logger, timeout, actions):
     return True
 
 def processActions(actions, logger, msg):
+    return
+
+def handler(ctx, msg):
     acts = actions.get(msg, [])
     if isinstance(acts, dict):
         acts = [acts]
@@ -74,17 +76,8 @@ def processActions(actions, logger, msg):
             active = fct(act, logger) or active
 
 def start_actors(ctx):
-    conf = ctx.config
-    for actor in conf.get('actors', []):
-        act = conf.get(actor, {})
-        ctx.logger.debug('starting actor %s; config=%s.' % (actor, act))
-        modSpec = act.get('module')
-        module = modSpec and import_module(modSpec) or this_module
-        fct = getattr(module, act['function'])
-        childCtx = context.setupChild(ctx, act)
-        p = Thread(target=fct, args=[childCtx])
-        p.start()
-        ctx.children.append((p, childCtx.mailbox))
+    for act in ctx.config.get('actors', []):
+        actor.run(ctx, act)
 
 # predefined actions
 

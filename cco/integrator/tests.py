@@ -27,14 +27,19 @@ class Test(TestCase):
         dispatcher.startThread(self.context)
 
     def tearDown(self):
-        self.context.mailbox.put('quit')
         for (p, mb) in self.context.children:
             if mb:
                 mb.put('quit')
+        self.context.mailbox.put('quit')
         wait()
 
     def testBasicStuff(self):
         wait()
+        self.assertEqual(len(self.context.children), 1)
+        lr = loggerQueue.popleft()
+        self.assertRegexpMatches(lr.msg % lr.args, r'starting actor .*')
+        lr = loggerQueue.popleft()
+        self.assertRegexpMatches(lr.msg % lr.args, r"msg={'action': .*}.")
         lr = loggerQueue.popleft()
         self.assertEqual(lr.msg % lr.args, 'listening.')
 

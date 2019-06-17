@@ -8,9 +8,9 @@ actors:
 
 webserver:
   #module: cco.integrator.webserver.simple
-  #function: run_server
+  #start: run_server
   module: cco.integrator.webserver.wsgi
-  function: run_waitress
+  start: run_waitress
   port: 8123
   routes:
     - quit    # shutdown server
@@ -20,10 +20,6 @@ webserver:
   pollable_timeout: 10
 
   #routes:
-    #rules:
-      #- quit
-      #- poll
-      #- default
     #quit:
       #path: /quit
       #function: do_quit
@@ -37,7 +33,7 @@ webserver:
       #clients: ...
 
 poll_fms:
-  function: serve
+  start: serve
   module: cco.integrator.polling
   url: http://localhost:8123/poll
   http_timeout: 30
