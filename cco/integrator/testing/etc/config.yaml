@@ -2,6 +2,7 @@ version: 1
 
 actors:
   - check-dir
+  - worker
 #  - webserver
 
 check-dir:
@@ -9,7 +10,7 @@ check-dir:
   step: check_dir
   path: data
   action: 
-    actor: worker
+    target: worker
     message: move-file
 
 webserver:
@@ -46,4 +47,5 @@ worker:
   actions:
     move-file:
       function: move_file
-      target-path: data/target
+      target-dir: data/target
+      backup-dir: data/backup

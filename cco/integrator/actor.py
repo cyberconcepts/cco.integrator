@@ -17,6 +17,7 @@ this_module = sys.modules[__name__]
 def run(pctx, name):
     conf = pctx.config.get(name, {})
     ctx = context.setupChild(pctx, conf)
+    pctx.registry.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
     p = Thread(target=getFunction(ctx, 'start'), args=[ctx])
     pctx.children.append((p, ctx.mailbox))
@@ -37,10 +38,10 @@ def step(ctx):
     return action(ctx, msg)
 
 
-def do_default(ctx, cfg):
+def do_default(ctx, msg, cfg):
     return True
 
-def do_quit(ctx, cfg):
+def do_quit(ctx, msg, cfg):
     for (p, mb) in ctx.children:
         mb.put('quit')
     return False
@@ -49,7 +50,11 @@ def move_file(ctx, cfg):
     pass
 
 def action(ctx, msg):
-    cfg = ctx.get('actions', {}).get(msg, {})
+    if isinstance(msg, dict):
+        message = msg.get('message') or '???'
+    else:
+        message = msg
+    cfg = ctx.config.get('actions', {}).get(message, {})
     if not cfg:
         if  msg == 'quit':
             fct = do_quit
@@ -59,7 +64,7 @@ def action(ctx, msg):
         fname = cfg.get('function')
         modSpec = cfg.get('module')
         fct = getFunction(ctx, fname, modSpec)
-    return fct(ctx, cfg)
+    return fct(ctx, msg, cfg)
 
 def getFunction(ctx, name, modSpec=None):
     modSpec = modSpec or ctx.config.get('module')

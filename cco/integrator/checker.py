@@ -15,8 +15,10 @@ def check_dir(ctx):
     path = join(ctx.home, ctx.config.get('path', '.'))
     fns = check(path)
     if fns:
-        action = ctx.config.get('action', {}).get('message', 'dummy')
-        msg = dict(action=action, filenames=fns)
+        action = ctx.config.get('action', {})
+        message = action.get('message', '???')
+        target = action.get('target', '???')
+        msg = dict(target=target, message=message, filenames=fns)
         ctx.logger.debug('msg=%s.' % msg)
         ctx.parent_mb.put(msg)
     try:
