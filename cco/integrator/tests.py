@@ -24,7 +24,7 @@ class Test(TestCase):
         loggerQueue.clear()
         self.context = context.setup(
                 system='linux', home=home, cfgname='config.yaml')
-        dispatcher.startThread(self.context)
+        dispatcher.run(self.context)
 
     def tearDown(self):
         for (p, mb) in self.context.children:
@@ -39,9 +39,9 @@ class Test(TestCase):
         lr = loggerQueue.popleft()
         self.assertRegexpMatches(lr.msg % lr.args, r'starting actor .*')
         lr = loggerQueue.popleft()
+        if lr.msg % lr.args == 'listening.':
+            lr = loggerQueue.popleft()
         self.assertRegexpMatches(lr.msg % lr.args, r"msg={'action': .*}.")
-        lr = loggerQueue.popleft()
-        self.assertEqual(lr.msg % lr.args, 'listening.')
 
 
 def wait(t=0.1):

@@ -20,46 +20,43 @@ from cco.integrator import actor, context
 this_module = sys.modules[__name__]
 
 
-def startThread(ctx):
-    start_actors(ctx)
-    p = Thread(target=listener, args=[ctx])
+def run(ctx, name='dispatcher'):
+    p = Thread(target=start, args=[ctx])
     p.start()
     return (p, ctx.mailbox)
 
 def start(ctx):
     start_actors(ctx)
     listener(ctx)
-    for (p, mb) in ctx.children:
-        if mb:
-            mb.put('quit')
-    time.sleep(1)
 
 def listener(ctx):
     ctx.logger.info('listening.')
-    schedConf = ctx.config.get('dispatcher', {})
-    timeout = schedConf.get('receive_timeout', 15)
-    actions = ctx.config.get('actions', {})
-    while step(ctx.mailbox, ctx.logger, timeout, actions):
+    while step(ctx):
         pass
 
-def step(mailbox, logger, timeout, actions):
+def step(ctx):
+    conf = ctx.config.get('dispatcher')
+    actions = ctx.config.get('actions', {})
     try:
-        msg = mailbox.get(timeout=timeout)
+        msg = ctx.mailbox.get(timeout=conf.get('timeout', 15))
     except Empty:
         msg = actions.get('default', 'default_action')
-    logger.debug('msg=%s.' % msg)
+    ctx.logger.debug('msg=%s.' % msg)
     if msg == 'quit':
+        for (p, mb) in ctx.children:
+            if mb:
+                mb.put('quit')
         return False
-    try:
-        processActions(actions, logger, msg)
-    except:
-        logger.error(traceback.format_exc())
+    #try:
+    #    processActions(actions, ctx.logger, msg)
+    #except:
+    #    ctx.logger.error(traceback.format_exc())
     return True
 
 def processActions(actions, logger, msg):
     return
 
-def handler(ctx, msg):
+def action_handler(ctx, msg):
     acts = actions.get(msg, [])
     if isinstance(acts, dict):
         acts = [acts]

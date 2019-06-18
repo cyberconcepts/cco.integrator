@@ -6,8 +6,11 @@ actors:
 
 check-dir:
   module: cco.integrator.checker
+  step: check_dir
   path: data
-  action: move-file
+  action: 
+    actor: worker
+    message: move-file
 
 webserver:
   module: cco.integrator.webserver.wsgi
