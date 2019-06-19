@@ -4,9 +4,10 @@ Logger for testing purposes
 2019-06-10 helmutm@cy55.de
 '''
 
+from collections import deque
 import logging
 
-from cco.integrator.tests import loggerQueue
+loggerQueue = deque()
 
 
 class QueueHandler(logging.Handler):

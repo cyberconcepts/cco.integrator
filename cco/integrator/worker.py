@@ -10,7 +10,7 @@ from os.path import isdir, join
 import shutil
 
 
-def move_file(ctx, msg, cfg):
+def move_file(ctx, cfg, msg):
     target = join(ctx.home, cfg['target-dir'])
     for fn in msg['filenames']:
         ctx.logger.debug('move_file; fn=%s, target=%s.' % (fn, target))

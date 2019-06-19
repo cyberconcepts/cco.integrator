@@ -3,7 +3,7 @@ version: 1
 actors:
   - check-dir
   - worker
-#  - webserver
+  - webserver
 
 check-dir:
   module: cco.integrator.checker
@@ -13,10 +13,19 @@ check-dir:
     target: worker
     message: move-file
 
+worker:
+  module: cco.integrator.worker
+  actions:
+    move-file:
+      function: move_file
+      target-dir: data/target
+      backup-dir: data/backup
+
 webserver:
   module: cco.integrator.webserver.wsgi
-  start: run_waitress
+  start: start_waitress
   port: 8123
+  pollable_timeout: 10
   routes:
     quit:
       path: /quit
@@ -38,14 +47,3 @@ poll_fms:
   sleep_on_excp: 10
   sleep_on_idle: 0
   target_mailbox: default
-
-dispatcher:
-  receive_timeout: 10
-
-worker:
-  module: cco.integrator.worker
-  actions:
-    move-file:
-      function: move_file
-      target-dir: data/target
-      backup-dir: data/backup

@@ -14,10 +14,10 @@ from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 
 
-def run_waitress(ctx):
+def start_waitress(ctx):
     port = ctx.config.get('port', 8123)
     app = create_app(ctx)
-    serve(app, port=port)
+    serve(app, port=port, clear_untrusted_proxy_headers=True)
 
 
 def create_app(ctx):
@@ -31,7 +31,7 @@ def create_app(ctx):
         urls = url_map.bind_to_environ(request.environ)
         resp = urls.dispatch(
             lambda ep, kw: handlers[ep](request, ctx, ep, **kw),
-            catch_http_exceptions=True)
+            catch_http_exceptions=False)
         return resp(env, start_response)
 
     return app
@@ -42,7 +42,7 @@ def build_response(result, msg):
     return Response(json.dumps(data), mimetype='application/json')
 
 def do_poll(request, ctx, ep, **kw):
-    timeout = ctx.config.get('pollable_timeout', 60)
+    timeout = ctx.config.get('pollable_timeout', 15)
     try:
         data = ctx.parent_mb.get(timeout=timeout)
         result = 'data'

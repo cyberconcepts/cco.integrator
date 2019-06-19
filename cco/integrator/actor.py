@@ -38,16 +38,14 @@ def step(ctx):
     return action(ctx, msg)
 
 
-def do_default(ctx, msg, cfg):
+def do_default(ctx, cfg, msg):
     return True
 
-def do_quit(ctx, msg, cfg):
+def do_quit(ctx, cfg, msg):
     for (p, mb) in ctx.children:
         mb.put('quit')
     return False
 
-def move_file(ctx, cfg):
-    pass
 
 def action(ctx, msg):
     if isinstance(msg, dict):
@@ -64,7 +62,7 @@ def action(ctx, msg):
         fname = cfg.get('function')
         modSpec = cfg.get('module')
         fct = getFunction(ctx, fname, modSpec)
-    return fct(ctx, msg, cfg)
+    return fct(ctx, cfg, msg)
 
 def getFunction(ctx, name, modSpec=None):
     modSpec = modSpec or ctx.config.get('module')

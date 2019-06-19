@@ -1,5 +1,5 @@
 '''
-Tests for the 'cco.webapi' package.
+Tests for the 'cco.integrator' package.
 
 2019-06-10 helmutm@cy55.de
 '''
@@ -7,16 +7,14 @@ Tests for the 'cco.webapi' package.
 from unittest import TestCase
 
 from collections import deque
-import os
 from os.path import abspath, dirname, join
+import os
 import shutil
-import time
 
-from cco.integrator import context, dispatcher
+from cco.integrator import context, dispatcher, system
+from cco.integrator.testing.logger import loggerQueue
 
 home = join(dirname(abspath(__file__)), 'testing')
-
-loggerQueue = deque()
 
 
 class Test(TestCase):
@@ -34,11 +32,12 @@ class Test(TestCase):
             if mb:
                 mb.put('quit')
         self.context.mailbox.put('quit')
-        wait()
+        system.wait()
+        system.exit()
 
-    def testBasicStuff(self):
-        wait()
-        self.assertEqual(len(self.context.children), 2)
+    def test02_check(self):
+        system.wait()
+        self.assertEqual(len(self.context.children), 3)
         lr = loggerQueue.popleft()
         self.assertRegexpMatches(lr.msg % lr.args, r'starting actor check-dir.*')
         lr = loggerQueue.popleft()
@@ -49,17 +48,19 @@ class Test(TestCase):
         self.assertRegexpMatches(lr.msg % lr.args, r"msg={'message': .*}.")
 
 
+# utilities
+
 def prepareFiles():
     fn = 'test.txt'
     dataDir = join(home, 'data')
     targetDir = join(dataDir, 'target')
     backupDir = join(dataDir, 'backup')
-    shutil.copy2(join(targetDir, fn), dataDir)
-    os.remove(join(targetDir, fn))
-    os.remove(join(backupDir, fn))
-
-def wait(t=0.1):
-    time.sleep(t)
+    try:
+        shutil.copy2(join(targetDir, fn), dataDir)
+        os.remove(join(targetDir, fn))
+        os.remove(join(backupDir, fn))
+    except IOError:
+        pass
 
 
 if __name__ == '__main__':

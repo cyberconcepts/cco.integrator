@@ -4,20 +4,9 @@ Dispatcher functions
 2019-05-26 helmutm@cy55.de
 '''
 
-import glob
 from threading import Thread
-from Queue import Queue, Empty
-import os
-from os.path import abspath, dirname, isdir, isfile, join
-import shutil
-import sys
-import time
-import traceback
 
 from cco.integrator import actor, context
-
-
-this_module = sys.modules[__name__]
 
 
 def run(ctx, name='dispatcher'):
@@ -27,16 +16,14 @@ def run(ctx, name='dispatcher'):
 
 def start(ctx):
     start_actors(ctx)
-    listener(ctx)
+    listen(ctx)
 
-def listener(ctx):
+def listen(ctx):
     ctx.logger.info('listening.')
     while step(ctx):
         pass
 
 def step(ctx):
-    conf = ctx.config.get('dispatcher')
-    actions = ctx.config.get('actions', {})
     msg = ctx.mailbox.get()
     ctx.logger.debug('msg=%s.' % msg)
     if msg == 'quit':
