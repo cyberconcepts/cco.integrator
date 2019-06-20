@@ -17,7 +17,7 @@ this_module = sys.modules[__name__]
 def run(pctx, name):
     conf = pctx.config.get(name, {})
     ctx = context.setupChild(pctx, conf)
-    pctx.registry.setdefault('actors', {})[name] = ctx.mailbox
+    pctx.services.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
     p = Thread(target=getFunction(ctx, 'start'), args=[ctx])
     pctx.children.append((p, ctx.mailbox))
@@ -49,10 +49,10 @@ def do_quit(ctx, cfg, msg):
 
 def action(ctx, msg):
     if isinstance(msg, dict):
-        message = msg.get('message') or '???'
+        cmd = msg.get('command') or '???'
     else:
-        message = msg
-    cfg = ctx.config.get('actions', {}).get(message, {})
+        cmd = msg
+    cfg = ctx.config.get('actions', {}).get(cmd, {})
     if not cfg:
         if  msg == 'quit':
             fct = do_quit

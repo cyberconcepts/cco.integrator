@@ -4,7 +4,6 @@ Tests for the 'cco.integrator' package.
 2019-06-19 helmutm@cy55.de
 '''
 
-from collections import deque
 from os.path import abspath, dirname, join
 import os
 import shutil
@@ -23,6 +22,7 @@ def run():
     ctx = context.setup(
             system='linux', home=home, cfgname='config.yaml')
     dispatcher.run(ctx)
+    system.wait()
 
     # test
     engine.runTest(test, te, ctx)
@@ -34,7 +34,6 @@ def run():
     system.exit()
 
 def test(te, ctx):
-    system.wait()
     te.checkEqual(len(ctx.children), 3)
     # te.checkForSet(te.checkLogMessage, patterns, loggerQueue)
     lr = loggerQueue.popleft()

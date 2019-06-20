@@ -10,8 +10,8 @@ check-dir:
   step: check_dir
   path: data
   action: 
-    target: worker
-    message: move-file
+    actor: worker
+    command: move-file
 
 worker:
   module: cco.integrator.worker
@@ -39,11 +39,11 @@ webserver:
       function: do_forward
       clients: ...
 
-poll_fms:
+poll-fms:
   start: serve
   module: cco.integrator.polling
   url: http://localhost:8123/poll
   http_timeout: 30
   sleep_on_excp: 10
   sleep_on_idle: 0
-  target_mailbox: default
+  #target_mailbox: default

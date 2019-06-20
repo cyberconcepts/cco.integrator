@@ -30,13 +30,13 @@ def step(ctx):
             mb.put('quit')
         return False
     if isinstance(msg, dict):
-        target = msg.get('target')
+        target = msg.get('actor')
         if target is None:
-            ctx.logger.warn('No target in message.')
+            ctx.logger.warn('No target actor in message.')
         else:
-            mb = ctx.registry.get('actors', {}).get(target)
+            mb = ctx.services.get('actors', {}).get(target)
             if mb is None:
-                ctx.logger.warn('Target %s missing in registry.' % target)
+                ctx.logger.warn('Actor %s missing in services.' % target)
             else:
                 mb.put(msg)
     return True
