@@ -36,22 +36,23 @@ class Engine(object):
         for item in self.items:
             item.show()
         if self.nfailed:
-            print '%s tests of %s failed!' % (self.nfailed, self.count)
+            print '%s tests out of %s failed!' % (self.nfailed, self.count)
 
     # check methods
 
-    def checkEqual(self, vc, vx):
-        if vc != vx:
-            msg = '%s != %s' % (vc, vx)
+    def checkCond(self, cond, msg=None):
+        if not cond:
+            if msg is None:
+                msg = 'condition false'
             return self.setFailed(msg)
         self.setOK()
 
+    def checkEqual(self, vc, vx):
+        self.checkCond(vc == vx, '%s != %s' % (vc, vx))
+
     def checkRegex(self, vc, pattern):
         vx = re.compile(pattern)
-        if not vx.search(vc):
-            msg = '%s *does not match* %s' % (vc, pattern)
-            return self.setFailed(msg)
-        self.setOK()
+        self.checkCond(vx.search(vc), '%s *does not match* %s' % (vc, pattern))
 
     # utility methods
 
