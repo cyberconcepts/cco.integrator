@@ -7,54 +7,44 @@ Tests for the 'cco.integrator' package.
 from collections import deque
 from os.path import abspath, dirname, join
 import os
-import re
 import shutil
 
 from cco.integrator import context, dispatcher, system
+from cco.integrator.testing import engine
 from cco.integrator.testing.logger import loggerQueue
 
 home = dirname(abspath(__file__))
 
 
 def run():
+    # setup
+    te = engine.init()
     prepareFiles()
     ctx = context.setup(
             system='linux', home=home, cfgname='config.yaml')
     dispatcher.run(ctx)
 
-    system.wait()
-    checkEqual(len(ctx.children), 3, 1)
-    # checkForSet(tc, checkLogMessage, patterns, loggerQueue)
-    lr = loggerQueue.popleft()
-    checkRegex(lr.msg % lr.args, r'starting actor check-dir.*', 2)
-    lr = loggerQueue.popleft()
-    checkRegex(lr.msg % lr.args, r'starting actor worker.*', 3)
-    lr = loggerQueue.popleft()
-    if lr.msg % lr.args == 'listening.':
-        lr = loggerQueue.popleft()
-    checkRegex(lr.msg % lr.args, r"msg={'message': .*}.", 4)
+    # test
+    engine.runTest(test, te, ctx)
 
-    for (p, mb) in ctx.children:
-        if mb:
-            mb.put('quit')
+    # finish
     ctx.mailbox.put('quit')
     system.wait()
+    te.show()
     system.exit()
 
-# testing functions
-
-def checkEqual(vc, vx, n):
-    if vc == vx:
-        print 'test %02i OK' % n
-    else:
-        print 'test %02i failed: %s != %s' % (n, vc, vx)
-
-def checkRegex(vc, pattern, n):
-    vx = re.compile(pattern)
-    if vx.search(vc):
-        print 'test %02i OK' % n
-    else:
-        print 'test %02i failed: %s does not match %s' % (n, vc, pattern)
+def test(te, ctx):
+    system.wait()
+    te.checkEqual(len(ctx.children), 3)
+    # te.checkForSet(te.checkLogMessage, patterns, loggerQueue)
+    lr = loggerQueue.popleft()
+    te.checkRegex(lr.msg % lr.args, r'starting actor check-dir.*')
+    lr = loggerQueue.popleft()
+    te.checkRegex(lr.msg % lr.args, r'starting actor worker.*')
+    lr = loggerQueue.popleft()
+    te.checkRegex(lr.msg % lr.args, r'starting actor webserver.*')
+    lr = loggerQueue.popleft()
+    te.checkRegex(lr.msg % lr.args, r"msg={'message': .*}.")
 
 # utilities
 

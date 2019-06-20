@@ -19,7 +19,6 @@ def start(ctx):
     listen(ctx)
 
 def listen(ctx):
-    ctx.logger.info('listening.')
     while step(ctx):
         pass
 
