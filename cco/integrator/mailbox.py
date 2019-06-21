@@ -13,7 +13,7 @@ from cco.integrator.message import no_message
 class Mailbox(object):
 
     def __init__(self):
-        self.queue = Queue
+        self.queue = Queue()
 
 
 def send(mb, msg):

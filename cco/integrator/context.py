@@ -8,6 +8,7 @@ from logging import getLogger
 from Queue import Queue
 
 from cco.integrator.config import loadConfig
+from cco.integrator.registry import Registry
 
 
 def setup(**kw):
@@ -36,7 +37,7 @@ class Context(object):
         self.home = home
         self.system = system
         self.state = state
-        self.registry = registry or {}
+        self.registry = registry or Registry()
         self.services = services or {}
         self.parent_mb = parent_mb
         self.config = config or loadConfig(home, cfgname)

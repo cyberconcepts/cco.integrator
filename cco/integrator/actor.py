@@ -9,7 +9,7 @@ from importlib import import_module
 import sys
 from threading import Thread
 
-from cco.integrator import context, mailbox, registry
+from cco.integrator import context, mailbox, process, registry
 
 this_module = sys.modules[__name__]
 
@@ -19,17 +19,16 @@ def run(pctx, name):
     ctx = context.setupChild(pctx, conf)
     pctx.services.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
-    p = Thread(target=getFunction(ctx, 'start'), args=[ctx])
+    p = process.run(start, [ctx])
     pctx.children.append((p, ctx.mailbox))
-    p.start()
 
 
 def start(ctx):
-    listen = getFunction(ctx, 'listen')
+    listen = getHandler(ctx, 'listen')
     listen(ctx)
 
 def listen(ctx):
-    step = getFunction(ctx, 'step')
+    step = getHandler(ctx, 'step')
     while step(ctx):
         pass
 
@@ -49,9 +48,9 @@ def action(ctx, msg):
         else:
             fct = do_default
     else:
-        fname = cfg.get('function')
+        fname = cfg.get('handler')
         modSpec = cfg.get('module')
-        fct = getFunction(ctx, fname, modSpec)
+        fct = getHandler(ctx, fname, modSpec)
     return fct(ctx, cfg, msg)
 
 # message/action handlers
@@ -66,7 +65,12 @@ def do_quit(ctx, cfg, msg):
 
 # utility functions
 
-def getFunction(ctx, name, modSpec=None):
+def getHandler(ctx, name, modSpec=None, group=None):
+    group = group or ctx.config.get('group')
+    if group is None or group not in ctx.registry.groups:
+        return getHandlerFromModule(ctx, name, modSpec)
+
+def getHandlerFromModule(ctx, name, modSpec=None):
     modSpec = modSpec or ctx.config.get('module')
     module = modSpec and import_module(modSpec) or this_module
     fname = ctx.config.get(name, name)

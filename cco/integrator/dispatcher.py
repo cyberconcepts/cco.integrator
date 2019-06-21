@@ -6,12 +6,11 @@ Dispatcher functions
 
 from threading import Thread
 
-from cco.integrator import actor, context
+from cco.integrator import actor, context, process
 
 
 def run(ctx, name='dispatcher'):
-    p = Thread(target=start, args=[ctx])
-    p.start()
+    p = process.run(start, [ctx])
     return (p, ctx.mailbox)
 
 def start(ctx):

@@ -18,7 +18,7 @@ worker:
   module: cco.integrator.worker
   actions:
     move-file:
-      function: move_file
+      handler: move_file
       target-dir: data/target
       backup-dir: data/backup
 
@@ -30,14 +30,14 @@ webserver:
   routes:
     quit:
       path: /quit
-      function: do_quit
+      handler: do_quit
     poll:
       path: /poll
-      function: do_poll
+      handler: do_poll
       timeout: 10
     default:
-      path: <msg>
-      function: do_forward
+      path: /<msg>+
+      handler: do_forward
       clients: ...
 
 poll-fms:

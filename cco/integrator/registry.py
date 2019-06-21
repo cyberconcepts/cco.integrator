@@ -7,4 +7,11 @@ Function registry for controlled dynamic addressing via config options
 
 class Registry(object):
 
-    pass
+    def __init__(self):
+        self.groups = {}
+
+
+class Group(object):
+
+    def __init__(self):
+        self.handlers = {}
