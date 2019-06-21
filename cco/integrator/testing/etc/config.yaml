@@ -9,7 +9,8 @@ check-dir:
   module: cco.integrator.checker
   step: check_dir
   path: data
-  action: 
+  action:
+    message: command
     actor: worker
     command: move-file
 

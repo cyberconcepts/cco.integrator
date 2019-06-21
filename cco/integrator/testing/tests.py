@@ -43,7 +43,7 @@ def test(te, ctx):
     lr = loggerQueue.popleft()
     te.checkRegex(lr.msg % lr.args, r'starting actor webserver.*')
     lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r"msg={'message': .*}.")
+    te.checkRegex(lr.msg % lr.args, r"msg={'command': .*}.")
 
 # utilities
 

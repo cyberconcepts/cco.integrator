@@ -9,7 +9,7 @@ from importlib import import_module
 import sys
 from threading import Thread
 
-from cco.integrator import context
+from cco.integrator import context, mailbox, registry
 
 this_module = sys.modules[__name__]
 
@@ -37,16 +37,6 @@ def step(ctx):
     msg = ctx.mailbox.get()
     return action(ctx, msg)
 
-
-def do_default(ctx, cfg, msg):
-    return True
-
-def do_quit(ctx, cfg, msg):
-    for (p, mb) in ctx.children:
-        mb.put('quit')
-    return False
-
-
 def action(ctx, msg):
     if isinstance(msg, dict):
         cmd = msg.get('command') or '???'
@@ -63,6 +53,18 @@ def action(ctx, msg):
         modSpec = cfg.get('module')
         fct = getFunction(ctx, fname, modSpec)
     return fct(ctx, cfg, msg)
+
+# message/action handlers
+
+def do_default(ctx, cfg, msg):
+    return True
+
+def do_quit(ctx, cfg, msg):
+    for (p, mb) in ctx.children:
+        mb.put('quit')
+    return False
+
+# utility functions
 
 def getFunction(ctx, name, modSpec=None):
     modSpec = modSpec or ctx.config.get('module')
