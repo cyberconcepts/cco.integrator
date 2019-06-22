@@ -13,6 +13,9 @@ from waitress import serve
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule
 
+from cco.integrator.mailbox import receive, send
+from cco.integrator.message import no_message, quit
+
 
 def start_waitress(ctx):
     port = ctx.config.get('port', 8123)
@@ -43,15 +46,16 @@ def build_response(result, msg):
 
 def do_poll(request, ctx, ep, **kw):
     timeout = ctx.config.get('pollable_timeout', 15)
-    try:
-        data = ctx.parent_mb.get(timeout=timeout)
-        result = 'data'
-    except Empty:
+    msg = receive(ctx.parent_mb, timeout)
+    if msg is no_message:
         data = ''
         result = 'idle'
+    else:
+        data = msg.payload # TODO: check message type
+        result = 'data'
     return build_response(result, data)
 
 def do_quit(request, ctx, ep, **kw):
-    ctx.parent_mb.put('quit')
+    send(ctx.parent_mb, quit)
     return build_response('ok', 'quit')
 

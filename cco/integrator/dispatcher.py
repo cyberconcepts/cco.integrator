@@ -7,6 +7,8 @@ Dispatcher functions
 from threading import Thread
 
 from cco.integrator import actor, context, process
+from cco.integrator.mailbox import receive, send
+from cco.integrator.message import quit
 
 
 def run(ctx, name='dispatcher'):
@@ -22,22 +24,19 @@ def listen(ctx):
         pass
 
 def step(ctx):
-    msg = ctx.mailbox.get()
+    msg = receive(ctx.mailbox)
     ctx.logger.debug('msg=%s.' % msg)
-    if msg == 'quit':
-        for (p, mb) in ctx.children:
-            mb.put('quit')
-        return False
-    if isinstance(msg, dict):
-        target = msg.get('actor')
-        if target is None:
-            ctx.logger.warn('No target actor in message.')
+    if msg is quit:
+        return actor.do_quit(ctx, None, msg)
+    target = msg.payload.get('actor')
+    if target is None:
+        ctx.logger.warn('No target actor in message.')
+    else:
+        mb = ctx.services.get('actors', {}).get(target)
+        if mb is None:
+            ctx.logger.warn('Actor %s missing in services.' % target)
         else:
-            mb = ctx.services.get('actors', {}).get(target)
-            if mb is None:
-                ctx.logger.warn('Actor %s missing in services.' % target)
-            else:
-                mb.put(msg)
+            send(mb, msg)
     return True
 
 

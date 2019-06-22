@@ -7,7 +7,10 @@ A simple webserver communicating with the top actor (dispatcher).
 from BaseHTTPServer import HTTPServer, BaseHTTPRequestHandler
 import json
 from logging import getLogger
-from Queue import Queue, Empty
+from Queue import Empty
+
+from cco.integrator.mailbox import receive, send
+from cco.integrator.message import no_message, quit
 
 
 def run_server(ctx):
@@ -33,21 +36,23 @@ class Handler(BaseHTTPRequestHandler):
         route(msg)
 
     def route_default(self, msg):
-        self.server.parent_mb.put(msg)
+        send(self.server.parent_mb, msg)
         self.respond(200, 'ok', msg)
 
     def route_quit(self, msg):
+        msg = quit
         self.server.active = False
         self.route_default(msg)
 
     def route_poll(self, msg):
         timeout = self.server.config.get('pollable_timeout', 60)
-        try:
-            data = self.server.parent_mb.get(timeout=timeout)
-            result = 'data'
-        except Empty:
+        msg = receive(self.server.parent_mb, timeout)
+        if msg is no_message:
             data = ''
             result = 'idle'
+        else:
+            data = msg.payload
+            result = 'data'
         self.respond(200, result, data)
 
     def respond(self, rc, result, msg):

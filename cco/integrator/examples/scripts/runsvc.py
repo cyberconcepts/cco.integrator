@@ -7,10 +7,12 @@ Application Integrator (Linux version):
 
 from os.path import abspath, dirname
 
-from cco.integrator import context, dispatcher
+from cco.integrator import context, dispatcher, system
 
 home = abspath(dirname(dirname(__file__)))
+
 
 if __name__ == '__main__':
     ctx = context.setup(system='linux', home=home)
     dispatcher.start(ctx)
+    system.exit()

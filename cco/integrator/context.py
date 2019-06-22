@@ -5,9 +5,9 @@ Context class and related functions
 '''
 
 from logging import getLogger
-from Queue import Queue
 
 from cco.integrator.config import loadConfig
+from cco.integrator.mailbox import Mailbox
 from cco.integrator.registry import Registry
 
 
@@ -42,6 +42,6 @@ class Context(object):
         self.parent_mb = parent_mb
         self.config = config or loadConfig(home, cfgname)
         self.logger = logger or getLogger('cco.integrator')
-        self.mailbox = mailbox or Queue()
+        self.mailbox = mailbox or Mailbox()
         self.children = children or []
 

@@ -9,6 +9,8 @@ import os
 import shutil
 
 from cco.integrator import context, dispatcher, system
+from cco.integrator.mailbox import send
+from cco.integrator.message import quit
 from cco.integrator.testing import engine
 from cco.integrator.testing.logger import loggerQueue
 
@@ -28,7 +30,7 @@ def run():
     engine.runTest(test, te, ctx)
 
     # finish
-    ctx.mailbox.put('quit')
+    send(ctx.mailbox, quit)
     system.wait()
     te.show()
     system.exit()
@@ -43,7 +45,7 @@ def test(te, ctx):
     lr = loggerQueue.popleft()
     te.checkRegex(lr.msg % lr.args, r'starting actor webserver.*')
     lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r"msg={'command': .*}.")
+    te.checkRegex(lr.msg % lr.args, r".* payload={'command': .*}.")
 
 # utilities
 

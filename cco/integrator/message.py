@@ -44,6 +44,9 @@ class Message(object):
         self.type = type
         #self.timestamp = 
 
+    def __str__(self):
+        return '<Message type=%s, payload=%s>' % (self.type.name, self.payload)
+
 
 quit = Message(type=quitMT)
 

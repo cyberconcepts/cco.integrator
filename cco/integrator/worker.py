@@ -12,7 +12,7 @@ import shutil
 
 def move_file(ctx, cfg, msg):
     target = join(ctx.home, cfg['target-dir'])
-    for fn in msg['filenames']:
+    for fn in msg.payload['filenames']:
         ctx.logger.debug('move_file; fn=%s, target=%s.' % (fn, target))
         shutil.copy2(fn, target)
         make_copy(ctx, cfg, 'backup-dir', fn)

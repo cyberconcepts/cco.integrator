@@ -19,6 +19,8 @@ home = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, home)
 
 from cco.integrator import context, dispatcher
+from cco.integrator.mailbox import send
+from cco.integrator.message import quit
 from cco.integrator.windows import base
 
 
@@ -32,7 +34,7 @@ class WinService(base.WinService):
         self.context = context.setup(system='windows', home=home)
 
     def stop(self):
-        self.context.mailbox.put('quit')
+        send(self.context.mailbox, quit)
 
     def main(self):
         dispatcher.start(self.context)

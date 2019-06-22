@@ -9,7 +9,9 @@ from importlib import import_module
 import sys
 from threading import Thread
 
-from cco.integrator import context, mailbox, process, registry
+from cco.integrator import context, process, registry
+from cco.integrator.mailbox import receive, send
+from cco.integrator.message import quit
 
 this_module = sys.modules[__name__]
 
@@ -33,34 +35,30 @@ def listen(ctx):
         pass
 
 def step(ctx):
-    msg = ctx.mailbox.get()
+    msg = receive(ctx.mailbox)
     return action(ctx, msg)
 
 def action(ctx, msg):
-    if isinstance(msg, dict):
-        cmd = msg.get('command') or '???'
+    if  msg is quit:
+        fct = do_quit
+        cfg = None
     else:
-        cmd = msg
-    cfg = ctx.config.get('actions', {}).get(cmd, {})
-    if not cfg:
-        if  msg == 'quit':
-            fct = do_quit
+        cmd = msg.payload.get('command') or '???'
+        cfg = ctx.config.get('actions', {}).get(cmd, {})
+        if not cfg:
+            fct = do_ignore
         else:
-            fct = do_default
-    else:
-        fname = cfg.get('handler')
-        modSpec = cfg.get('module')
-        fct = getHandler(ctx, fname, modSpec)
+            fct = getHandler(ctx, cfg.get('handler'), cfg.get('module'))
     return fct(ctx, cfg, msg)
 
 # message/action handlers
 
-def do_default(ctx, cfg, msg):
+def do_ignore(ctx, cfg, msg):
     return True
 
 def do_quit(ctx, cfg, msg):
     for (p, mb) in ctx.children:
-        mb.put('quit')
+        send(mb, quit)
     return False
 
 # utility functions
