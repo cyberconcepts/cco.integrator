@@ -11,6 +11,7 @@ from Queue import Empty
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import Message, commandMT, no_message, quit
+from cco.integrator import registry
 
 
 def check_dir(ctx):
@@ -27,6 +28,10 @@ def check_dir(ctx):
     msg = receive(ctx.mailbox, timeout)
     return msg != quit
 
-
 def check(path):
     return [f for f in glob(join(path, '*')) if isfile(f)]
+
+
+def register_handlers(reg):
+    registry.declare_handlers([check_dir], 'checker', reg)
+

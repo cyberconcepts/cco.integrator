@@ -8,7 +8,7 @@ from os.path import abspath, dirname, join
 import os
 import shutil
 
-from cco.integrator import context, dispatcher, system
+from cco.integrator import context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import quit
 from cco.integrator.testing import engine
@@ -21,8 +21,9 @@ def run():
     # setup
     te = engine.init()
     prepareFiles()
+    reg = registry.load()
     ctx = context.setup(
-            system='linux', home=home, cfgname='config.yaml')
+            system='linux', home=home, cfgname='config.yaml', registry=reg)
     dispatcher.run(ctx)
     system.wait()
 
@@ -37,15 +38,11 @@ def run():
 
 def test(te, ctx):
     te.checkEqual(len(ctx.children), 3)
-    # te.checkForSet(te.checkLogMessage, patterns, loggerQueue)
-    lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r'starting actor check-dir.*')
-    lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r'starting actor worker.*')
-    lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r'starting actor webserver.*')
-    lr = loggerQueue.popleft()
-    te.checkRegex(lr.msg % lr.args, r".* payload={'command': .*}.")
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
+    te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
+    te.checkRegexAny(logMsgs, r'starting actor worker.*')
+    te.checkRegexAny(logMsgs, r'starting actor webserver.*')
+    te.checkRegexAny(logMsgs, r".* payload={'command': .*}.")
 
 # utilities
 

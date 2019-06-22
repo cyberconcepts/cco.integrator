@@ -7,12 +7,13 @@ Application Integrator (Linux version):
 
 from os.path import abspath, dirname
 
-from cco.integrator import context, dispatcher, system
+from cco.integrator import context, dispatcher, registry, system
 
 home = abspath(dirname(dirname(__file__)))
 
 
 if __name__ == '__main__':
+    reg = registry.load()
     ctx = context.setup(system='linux', home=home)
     dispatcher.start(ctx)
     system.exit()

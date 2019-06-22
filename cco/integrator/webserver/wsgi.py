@@ -15,6 +15,7 @@ from werkzeug.routing import Map, Rule
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import no_message, quit
+from cco.integrator import registry
 
 
 def start_waitress(ctx):
@@ -59,3 +60,6 @@ def do_quit(request, ctx, ep, **kw):
     send(ctx.parent_mb, quit)
     return build_response('ok', 'quit')
 
+
+def register_handlers(reg):
+    registry.declare_handlers([start_waitress], 'webserver.wsgi', reg)

@@ -9,6 +9,8 @@ import os
 from os.path import isdir, join
 import shutil
 
+from cco.integrator import registry
+
 
 def move_file(ctx, cfg, msg):
     target = join(ctx.home, cfg['target-dir'])
@@ -17,6 +19,10 @@ def move_file(ctx, cfg, msg):
         shutil.copy2(fn, target)
         make_copy(ctx, cfg, 'backup-dir', fn)
         os.remove(fn)
+
+
+def register_handlers(reg):
+    registry.declare_handlers([move_file], 'worker', reg)
 
 
 # utility functions

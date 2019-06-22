@@ -54,6 +54,14 @@ class Engine(object):
         vx = re.compile(pattern)
         self.checkCond(vx.search(vc), '%s *does not match* %s' % (vc, pattern))
 
+    def checkRegexAny(self, coll, pattern):
+        vx = re.compile(pattern)
+        for vc in coll:
+            if vx.search(vc):
+                return self.setOK()
+        self.setFailed('pattern %s not found in collection' % pattern)
+
+
     # utility methods
 
     def update(self, msg, res):

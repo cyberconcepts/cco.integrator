@@ -6,7 +6,7 @@ actors:
   - webserver
 
 check-dir:
-  module: cco.integrator.checker
+  group: checker
   step: check_dir
   path: data
   action:
@@ -15,7 +15,7 @@ check-dir:
     command: move-file
 
 worker:
-  module: cco.integrator.worker
+  group: worker
   actions:
     move-file:
       handler: move_file
@@ -23,7 +23,8 @@ worker:
       backup-dir: data/backup
 
 webserver:
-  module: cco.integrator.webserver.wsgi
+  group: webserver.wsgi
+  #module: cco.integrator.webserver.wsgi
   start: start_waitress
   port: 8123
   pollable_timeout: 10

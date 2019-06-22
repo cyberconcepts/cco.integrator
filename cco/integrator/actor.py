@@ -61,12 +61,20 @@ def do_quit(ctx, cfg, msg):
         send(mb, quit)
     return False
 
+# handler registration
+
+def register_handlers(reg):
+    registry.declare_handlers(
+            [run, start, listen, step, action, do_ignore, do_quit], 
+            'actor', reg)
+
 # utility functions
 
 def getHandler(ctx, name, modSpec=None, group=None):
-    group = group or ctx.config.get('group')
-    if group is None or group not in ctx.registry.groups:
+    handler = registry.get_handler(ctx, name, group)
+    if handler is None:
         return getHandlerFromModule(ctx, name, modSpec)
+    return handler
 
 def getHandlerFromModule(ctx, name, modSpec=None):
     modSpec = modSpec or ctx.config.get('module')
