@@ -26,12 +26,19 @@ class Group(object):
         return '<Group handlers=%s>' % self.handlers
 
 
-def get_handler(ctx, name, group=None):
+def getHandler(ctx, name, group=None, defGroup='actor'):
     group = group or ctx.config.get('group')
-    if group is None or group not in ctx.registry.groups:
-        return None
     name = ctx.config.get(name) or name
-    return ctx.registry.groups[group].handlers.get(name)
+    if group is None and '.' in name:
+        group, name = name.rsplit('.', 1)
+    if group is None:
+        group = defGroup
+    if group not in ctx.registry.groups:
+        return None
+    h = ctx.registry.groups[group].handlers.get(name)
+    if h is None and group != defGroup:
+        h = ctx.registry.groups[defGroup].handlers.get(name)
+    return h
 
 default_registry = Registry()
 

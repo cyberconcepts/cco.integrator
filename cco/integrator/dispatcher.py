@@ -4,8 +4,6 @@ Dispatcher functions
 2019-05-26 helmutm@cy55.de
 '''
 
-from threading import Thread
-
 from cco.integrator import actor, context, process
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import quit

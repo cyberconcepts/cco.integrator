@@ -6,8 +6,7 @@ actors:
   - webserver
 
 check-dir:
-  group: checker
-  step: check_dir
+  step: checker.check_dir
   path: data
   action:
     message: command
@@ -24,26 +23,23 @@ worker:
 
 webserver:
   group: webserver.wsgi
-  #module: cco.integrator.webserver.wsgi
   start: start_waitress
   port: 8123
-  pollable_timeout: 10
   routes:
-    quit:
-      path: /quit
+    - path: /quit
+      name: quit
       handler: do_quit
-    poll:
-      path: /poll
+    - path: /poll
+      name: poll
       handler: do_poll
       timeout: 10
-    default:
-      path: /<msg>+
-      handler: do_forward
-      clients: ...
+    #- path: /<msg>+
+    #  name: default
+    #  handler: do_forward
+    #  clients: ...
 
 poll-fms:
-  start: serve
-  module: cco.integrator.polling
+  start: polling.serve
   url: http://localhost:8123/poll
   http_timeout: 30
   sleep_on_excp: 10

@@ -7,13 +7,11 @@ Basic actor stuff: starting an actor and communicating wit it.
 
 from importlib import import_module
 import sys
-from threading import Thread
 
 from cco.integrator import context, process, registry
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import quit
-
-this_module = sys.modules[__name__]
+from cco.integrator.registry import getHandler, declare_handlers
 
 
 def run(pctx, name):
@@ -21,6 +19,7 @@ def run(pctx, name):
     ctx = context.setupChild(pctx, conf)
     pctx.services.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
+    start = getHandler(ctx, 'start')
     p = process.run(start, [ctx])
     pctx.children.append((p, ctx.mailbox))
 
@@ -64,20 +63,6 @@ def do_quit(ctx, cfg, msg):
 # handler registration
 
 def register_handlers(reg):
-    registry.declare_handlers(
+    declare_handlers(
             [run, start, listen, step, action, do_ignore, do_quit], 
             'actor', reg)
-
-# utility functions
-
-def getHandler(ctx, name, modSpec=None, group=None):
-    handler = registry.get_handler(ctx, name, group)
-    if handler is None:
-        return getHandlerFromModule(ctx, name, modSpec)
-    return handler
-
-def getHandlerFromModule(ctx, name, modSpec=None):
-    modSpec = modSpec or ctx.config.get('module')
-    module = modSpec and import_module(modSpec) or this_module
-    fname = ctx.config.get(name, name)
-    return getattr(module, fname, None) or getattr(this_module, fname)

@@ -18,7 +18,23 @@ home = dirname(abspath(__file__))
 
 
 def run():
-    # setup
+    te, ctx = setup()
+    engine.runTest(test01, te, ctx)
+    finish(te, ctx)
+
+# tests
+
+def test01(te, ctx):
+    te.checkEqual(len(ctx.children), 3)
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
+    te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
+    te.checkRegexAny(logMsgs, r'starting actor worker.*')
+    te.checkRegexAny(logMsgs, r'starting actor webserver.*')
+    te.checkRegexAny(logMsgs, r".* payload={'command': .*}.")
+
+# setup, teardown / finish
+
+def setup():
     te = engine.init()
     prepareFiles()
     reg = registry.load()
@@ -26,23 +42,13 @@ def run():
             system='linux', home=home, cfgname='config.yaml', registry=reg)
     dispatcher.run(ctx)
     system.wait()
+    return (te, ctx)
 
-    # test
-    engine.runTest(test, te, ctx)
-
-    # finish
+def finish(te, ctx):
     send(ctx.mailbox, quit)
     system.wait()
     te.show()
     system.exit()
-
-def test(te, ctx):
-    te.checkEqual(len(ctx.children), 3)
-    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
-    te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
-    te.checkRegexAny(logMsgs, r'starting actor worker.*')
-    te.checkRegexAny(logMsgs, r'starting actor webserver.*')
-    te.checkRegexAny(logMsgs, r".* payload={'command': .*}.")
 
 # utilities
 

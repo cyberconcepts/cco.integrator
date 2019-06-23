@@ -15,7 +15,7 @@ from werkzeug.routing import Map, Rule
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import no_message, quit
-from cco.integrator import registry
+from cco.integrator.registry import getHandler, declare_handlers
 
 
 def start_waitress(ctx):
@@ -26,15 +26,19 @@ def start_waitress(ctx):
 
 def create_app(ctx):
 
-    url_map = Map([Rule('/quit', endpoint='quit'),
-                   Rule('/poll', endpoint='poll')]) # TODO: create from conf
-    handlers = dict(quit=do_quit, poll=do_poll) # TODO: create from conf
+    routes = ctx.config.get('routes', [])
+    url_map = Map([Rule(r['path'], endpoint=r['name']) for r in routes])
+    handlers = {}
+    cfgs = {}
+    for r in routes:
+        cfgs[r['name']] = r
+        handlers[r['name']] = getHandler(ctx, r['handler'])
 
     def app(env, start_response):
         request = Request(env)
         urls = url_map.bind_to_environ(request.environ)
         resp = urls.dispatch(
-            lambda ep, kw: handlers[ep](request, ctx, ep, **kw),
+            lambda ep, kw: handlers[ep](request, ctx, ep, cfgs[ep], **kw),
             catch_http_exceptions=False)
         return resp(env, start_response)
 
@@ -45,8 +49,8 @@ def build_response(result, msg):
     data = {'result': result, 'message': msg}
     return Response(json.dumps(data), mimetype='application/json')
 
-def do_poll(request, ctx, ep, **kw):
-    timeout = ctx.config.get('pollable_timeout', 15)
+def do_poll(request, ctx, ep, cfg, **kw):
+    timeout = cfg.get('timeout', 15)
     msg = receive(ctx.parent_mb, timeout)
     if msg is no_message:
         data = ''
@@ -56,10 +60,12 @@ def do_poll(request, ctx, ep, **kw):
         result = 'data'
     return build_response(result, data)
 
-def do_quit(request, ctx, ep, **kw):
+def do_quit(request, ctx, ep, cfg, **kw):
     send(ctx.parent_mb, quit)
     return build_response('ok', 'quit')
 
 
 def register_handlers(reg):
-    registry.declare_handlers([start_waitress], 'webserver.wsgi', reg)
+    declare_handlers(
+            [start_waitress, do_poll, do_quit], 
+            'webserver.wsgi', reg)

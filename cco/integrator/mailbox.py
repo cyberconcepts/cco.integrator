@@ -10,6 +10,10 @@ from Queue import Queue, Empty
 from cco.integrator.message import no_message
 
 
+def createMailbox():
+    return Mailbox()
+
+
 class Mailbox(object):
 
     def __init__(self):

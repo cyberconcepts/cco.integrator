@@ -7,8 +7,8 @@ Context class and related functions
 from logging import getLogger
 
 from cco.integrator.config import loadConfig
-from cco.integrator.mailbox import Mailbox
-from cco.integrator.registry import Registry
+from cco.integrator.mailbox import createMailbox
+from cco.integrator.registry import default_registry
 
 
 def setup(**kw):
@@ -37,11 +37,11 @@ class Context(object):
         self.home = home
         self.system = system
         self.state = state
-        self.registry = registry or Registry()
+        self.registry = registry or default_registry
         self.services = services or {}
         self.parent_mb = parent_mb
         self.config = config or loadConfig(home, cfgname)
         self.logger = logger or getLogger('cco.integrator')
-        self.mailbox = mailbox or Mailbox()
+        self.mailbox = mailbox or createMailbox()
         self.children = children or []
 
