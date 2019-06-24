@@ -4,7 +4,8 @@ Tests for the 'cco.integrator' package.
 2019-06-19 helmutm@cy55.de
 '''
 
-from os.path import abspath, dirname, join
+from glob import glob
+from os.path import abspath, basename, dirname, join
 import os
 import shutil
 
@@ -18,48 +19,52 @@ home = dirname(abspath(__file__))
 
 
 def run():
-    te, ctx = setup()
-    engine.runTest(test01, te, ctx)
-    finish(te, ctx)
+    prepareFiles()
+    te, ctx = setup('config-t0.yaml')
+    engine.runTest(test00, te, ctx)
+    finish([ctx])
 
 # tests
 
-def test01(te, ctx):
+def test00(te, ctx):
     te.checkEqual(len(ctx.children), 3)
     logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
     te.checkRegexAny(logMsgs, r'starting actor worker.*')
     te.checkRegexAny(logMsgs, r'starting actor webserver.*')
     te.checkRegexAny(logMsgs, r".* payload={'command': .*}.")
+    te.checkFiles(join(home, 'data', 'target'), ['test.txt'])
+    te.show()
 
 # setup, teardown / finish
 
-def setup():
+def setup(cfgname='config.yaml'):
     te = engine.init()
-    prepareFiles()
     reg = registry.load()
     ctx = context.setup(
-            system='linux', home=home, cfgname='config.yaml', registry=reg)
+            system='linux', home=home, cfgname=cfgname, registry=reg)
     dispatcher.run(ctx)
     system.wait()
     return (te, ctx)
 
-def finish(te, ctx):
-    send(ctx.mailbox, quit)
+def finish(contexts):
+    for ctx in contexts:
+        send(ctx.mailbox, quit)
     system.wait()
-    te.show()
     system.exit()
 
 # utilities
 
 def prepareFiles():
-    fn = 'test.txt'
     dataDir = join(home, 'data')
     targetDir = join(dataDir, 'target')
     backupDir = join(dataDir, 'backup')
-    try:
-        shutil.copy2(join(targetDir, fn), dataDir)
-        os.remove(join(targetDir, fn))
-        os.remove(join(backupDir, fn))
-    except IOError:
-        pass
+    filenames = glob(join(targetDir, '*'))
+    for fn in filenames:
+        try:
+            fn = basename(fn)
+            shutil.copy2(join(targetDir, fn), dataDir)
+            os.remove(join(targetDir, fn))
+            os.remove(join(backupDir, fn))
+        except IOError:
+            pass

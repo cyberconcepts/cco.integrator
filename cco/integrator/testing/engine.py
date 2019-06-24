@@ -6,6 +6,8 @@ checking, collecting, presenting tests
 2019-06-19 helmutm@cy55.de
 '''
 
+from glob import glob
+from os.path import basename, join
 import re
 import traceback
 
@@ -60,6 +62,10 @@ class Engine(object):
             if vx.search(vc):
                 return self.setOK()
         self.setFailed('pattern %s not found in collection' % pattern)
+
+    def checkFiles(self, path, vx):
+        vc = [basename(p) for p in glob(join(path, '*'))]
+        self.checkEqual(sorted(vc), sorted(vx))
 
 
     # utility methods
