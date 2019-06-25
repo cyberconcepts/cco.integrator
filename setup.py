@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.0.2'
+version = '0.1.2'
 
 setup(name='cco.integrator',
       version=version,
@@ -11,7 +11,7 @@ setup(name='cco.integrator',
       # Get more strings from
       # https://pypi.org/classifiers
       classifiers=[
-        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.7",
         "Development Status :: 2 - Pre Alpha",
         "Environment :: Console",
         "Environment :: Web Environment",

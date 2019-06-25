@@ -5,7 +5,7 @@ Mailbox types with send and receive functions
 
 '''
 
-from Queue import Queue, Empty
+from queue import Queue, Empty
 
 from cco.integrator.message import no_message
 

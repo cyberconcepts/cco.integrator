@@ -32,7 +32,7 @@ def test00(te, ctx):
     te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
     te.checkRegexAny(logMsgs, r'starting actor worker.*')
     te.checkRegexAny(logMsgs, r'starting actor webserver.*')
-    te.checkRegexAny(logMsgs, r".* payload={'command': .*}.")
+    te.checkRegexAny(logMsgs, r".* payload={.*'command': .*}.")
     te.checkFiles(join(home, 'data', 'target'), ['test.txt'])
     te.show()
 

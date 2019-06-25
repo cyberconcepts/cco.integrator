@@ -7,7 +7,7 @@ Actors that check for some condition
 
 from glob import glob
 from os.path import isfile, join
-from Queue import Empty
+from queue import Empty
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import Message, commandMT, no_message, quit

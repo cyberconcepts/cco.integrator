@@ -8,7 +8,7 @@ App based on: Werkzeug
 '''
 
 import json
-from Queue import Empty
+from queue import Empty
 from waitress import serve
 from werkzeug.wrappers import Request, Response
 from werkzeug.routing import Map, Rule

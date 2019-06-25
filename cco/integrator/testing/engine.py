@@ -23,7 +23,7 @@ def runTest(fct, eng, ctx):
         fct(eng, ctx)
     except:
         eng.show()
-        print traceback.format_exc()
+        print(traceback.format_exc())
         system.exit()
 
 
@@ -38,7 +38,7 @@ class Engine(object):
         for item in self.items:
             item.show()
         if self.nfailed:
-            print '%s tests out of %s failed!' % (self.nfailed, self.count)
+            print('%s tests out of %s failed!' % (self.nfailed, self.count))
 
     # check methods
 
@@ -61,7 +61,8 @@ class Engine(object):
         for vc in coll:
             if vx.search(vc):
                 return self.setOK()
-        self.setFailed('pattern %s not found in collection' % pattern)
+        self.setFailed('pattern %s not found in collection\n%s' % 
+                       (pattern, coll))
 
     def checkFiles(self, path, vx):
         vc = [basename(p) for p in glob(join(path, '*'))]
@@ -91,8 +92,8 @@ class Item(object):
         self.result = result
 
     def show(self):
-        print 'test %02i %s %s' % (self.number, self.result, 
-                    self.message and ': ' + self.message or '')
+        print('test %02i %s %s' % (self.number, self.result, 
+                    self.message and ': ' + self.message or ''))
 
 
 class Result(object):
