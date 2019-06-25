@@ -1,23 +1,29 @@
 from setuptools import setup, find_packages
 import os
 
-version = '0.0.1'
+version = '0.0.2'
 
 setup(name='cco.integrator',
       version=version,
-      description="",
+      description="actor-based data and application integration",
       long_description=open("README.txt").read() + "\n" +
                        open(os.path.join("docs", "HISTORY.txt")).read(),
       # Get more strings from
-      # http://pypi.python.org/pypi?:action=list_classifiers
+      # https://pypi.org/classifiers
       classifiers=[
-        "Programming Language :: Python",
+        "Programming Language :: Python :: 2.7",
+        "Development Status :: 2 - Pre Alpha",
+        "Environment :: Console",
+        "Environment :: Web Environment",
+        "Intended Audience :: Developers",
+        "License :: OSI Approved :: MIT License",
+        "Topic :: Communications",
         ],
       keywords='',
-      author='',
+      author='cyberconcepts.org team',
       author_email='helmutm@cy55.de',
       url='https://www.cyberconcepts.org',
-      license='GPL',
+      license='MIT',
       packages=find_packages(exclude=['ez_setup']),
       namespace_packages=['cco'],
       include_package_data=True,
