@@ -4,8 +4,10 @@ Operating system utilities
 2019-06-19 helmutm@cy55.de
 '''
 
+from asyncio import sleep
 from os.path import abspath, join
-import os, signal, sys, time
+import os, signal, sys
+#from time import sleep
 
 # filesystem utilities
 
@@ -29,8 +31,8 @@ def savepid(ctx, path=None, filename='cco.integrator.pid'):
 def getpid():
     return os.getpid()
 
-def wait(t=0.1):
-    time.sleep(t)
+async def wait(t=0.1):
+    await sleep(t)
 
 def exit(code=0):
     os._exit(code)

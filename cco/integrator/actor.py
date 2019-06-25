@@ -24,17 +24,17 @@ def run(pctx, name):
     pctx.children.append((p, ctx.mailbox))
 
 
-def start(ctx):
+async def start(ctx):
     listen = getHandler(ctx, 'listen')
-    listen(ctx)
+    await listen(ctx)
 
-def listen(ctx):
+async def listen(ctx):
     step = getHandler(ctx, 'step')
-    while step(ctx):
+    while await step(ctx):
         pass
 
-def step(ctx):
-    msg = receive(ctx.mailbox)
+async def step(ctx):
+    msg = await receive(ctx.mailbox)
     return action(ctx, msg)
 
 def action(ctx, msg):
@@ -55,9 +55,9 @@ def action(ctx, msg):
 def do_ignore(ctx, cfg, msg):
     return True
 
-def do_quit(ctx, cfg, msg):
+async def do_quit(ctx, cfg, msg):
     for (p, mb) in ctx.children:
-        send(mb, quit)
+        await send(mb, quit)
     return False
 
 # handler registration

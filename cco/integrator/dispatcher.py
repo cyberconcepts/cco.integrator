@@ -13,19 +13,19 @@ def run(ctx, name='dispatcher'):
     p = process.run(start, [ctx])
     return (p, ctx.mailbox)
 
-def start(ctx):
+async def start(ctx):
     start_actors(ctx)
-    listen(ctx)
+    await listen(ctx)
 
-def listen(ctx):
-    while step(ctx):
+async def listen(ctx):
+    while await step(ctx):
         pass
 
-def step(ctx):
-    msg = receive(ctx.mailbox)
+async def step(ctx):
+    msg = await receive(ctx.mailbox)
     ctx.logger.debug('msg=%s.' % msg)
     if msg is quit:
-        return actor.do_quit(ctx, None, msg)
+        return await actor.do_quit(ctx, None, msg)
     target = msg.payload.get('actor')
     if target is None:
         ctx.logger.warn('No target actor in message.')
@@ -34,7 +34,7 @@ def step(ctx):
         if mb is None:
             ctx.logger.warn('Actor %s missing in services.' % target)
         else:
-            send(mb, msg)
+            await send(mb, msg)
     return True
 
 

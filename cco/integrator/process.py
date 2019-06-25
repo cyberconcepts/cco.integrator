@@ -5,17 +5,15 @@ Creation and handling of actor processes (mostly just threads)
 
 '''
 
-from threading import Thread
+from asyncio import create_task
 
 
 class Process(object):
 
-    def __init__(self, thread):
-        self.thread = thread
+    def __init__(self, task):
+        self.task = task
 
 
 def run(target, params):
-    th = Thread(target=target, args=params)
-    p = Process(th)
-    th.start()
-    return p
+    t = create_task(target(*params))
+    return Process(t)

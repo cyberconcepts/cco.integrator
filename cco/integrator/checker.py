@@ -7,14 +7,13 @@ Actors that check for some condition
 
 from glob import glob
 from os.path import isfile, join
-from queue import Empty
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import Message, commandMT, no_message, quit
 from cco.integrator import registry
 
 
-def check_dir(ctx):
+async def check_dir(ctx):
     timeout = ctx.config.get('receive_timeout', 15)
     path = join(ctx.home, ctx.config.get('path', '.'))
     fns = check(path)
@@ -24,8 +23,8 @@ def check_dir(ctx):
         act = action.get('actor', '???')
         msg = Message(dict(actor=act, command=cmd, filenames=fns), commandMT)
         ctx.logger.debug('msg=%s.' % msg)
-        send(ctx.parent_mb, msg)
-    msg = receive(ctx.mailbox, timeout)
+        await send(ctx.parent_mb, msg)
+    msg = await receive(ctx.mailbox, timeout)
     return msg != quit
 
 def check(path):

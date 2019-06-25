@@ -3,7 +3,7 @@ version: 1
 actors:
   - check-dir
   - worker
-  - webserver
+  #- webserver
 
 check-dir:
   step: checker.check_dir
