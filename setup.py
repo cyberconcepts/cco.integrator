@@ -30,9 +30,10 @@ setup(name='cco.integrator',
       zip_safe=False,
       install_requires=[
           'setuptools',
+          'aiohttp',
           'pyyaml',
-          'waitress',
-          'Werkzeug',
+          #'waitress',
+          #'Werkzeug',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

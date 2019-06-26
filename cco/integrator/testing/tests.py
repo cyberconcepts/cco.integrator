@@ -27,11 +27,11 @@ async def run():
 # tests
 
 def test00(te, ctx):
-    te.checkEqual(len(ctx.children), 2)# 3)
+    te.checkEqual(len(ctx.children), 3)
     logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
     te.checkRegexAny(logMsgs, r'starting actor worker.*')
-    #te.checkRegexAny(logMsgs, r'starting actor webserver.*')
+    te.checkRegexAny(logMsgs, r'starting actor webserver.*')
     te.checkRegexAny(logMsgs, r".* payload={.*'command': .*}.")
     te.checkFiles(join(home, 'data', 'target'), ['test.txt'])
     te.show()
@@ -44,6 +44,7 @@ async def setup(cfgname='config.yaml'):
     ctx = context.setup(
             system='linux', home=home, cfgname=cfgname, registry=reg)
     dispatcher.run(ctx)
+    #await dispatcher.start(ctx)
     await system.wait()
     return (te, ctx)
 
@@ -53,7 +54,7 @@ async def finish(contexts):
     await system.wait()
     #for rec in loggerQueue:
     #    print(rec)
-    system.exit()
+    #system.exit()
 
 # utilities
 

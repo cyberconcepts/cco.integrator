@@ -8,6 +8,7 @@ Actors that check for some condition
 from glob import glob
 from os.path import isfile, join
 
+from cco.integrator.actor import do_quit
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import Message, commandMT, no_message, quit
 from cco.integrator import registry
@@ -26,7 +27,10 @@ async def check_dir(ctx):
         await send(ctx.parent_mb, msg)
     msg = await receive(ctx.mailbox, timeout)
     ctx.logger.debug('msg=%s.' % msg)
-    return msg != quit
+    if msg is quit:
+        return await do_quit(ctx, None, msg)
+    else:
+        return True
 
 def check(path):
     return [f for f in glob(join(path, '*')) if isfile(f)]

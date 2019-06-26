@@ -44,7 +44,8 @@ default_registry = Registry()
 
 standard_prefix = 'cco.integrator'
 standard_modules = ['actor', 'checker', 'worker',
-                    'webserver.wsgi']
+                    'webserver.aio']
+                    #'webserver.wsgi']
 
 def load(modules=standard_modules, 
                   prefix=standard_prefix,

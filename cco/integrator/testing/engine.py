@@ -24,7 +24,7 @@ def runTest(fct, eng, ctx):
     except:
         eng.show()
         print(traceback.format_exc())
-        system.exit()
+        #system.exit()
 
 
 class Engine(object):

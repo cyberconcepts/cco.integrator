@@ -3,7 +3,7 @@ version: 1
 actors:
   - check-dir
   - worker
-  #- webserver
+  - webserver
 
 check-dir:
   step: checker.check_dir
@@ -22,8 +22,7 @@ worker:
       backup-dir: data/backup
 
 webserver:
-  group: webserver.aiohttp
-  #start: start_waitress
+  group: webserver.aio
   port: 8123
   routes:
     - path: /quit

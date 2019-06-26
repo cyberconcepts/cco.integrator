@@ -9,4 +9,4 @@ import asyncio
 from cco.integrator.testing import tests
 
 if __name__ == '__main__':
-    asyncio.run(tests.run())
+    asyncio.run(tests.run(), debug=True)
