@@ -10,7 +10,7 @@ from cco.integrator.message import quit
 
 
 def run(ctx, name='dispatcher'):
-    p = process.run(start, [ctx])
+    p = process.run(start, [ctx], name)
     return (p, ctx.mailbox)
 
 async def start(ctx):

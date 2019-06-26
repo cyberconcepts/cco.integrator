@@ -22,8 +22,8 @@ worker:
       backup-dir: data/backup
 
 webserver:
-  group: webserver.wsgi
-  start: start_waitress
+  group: webserver.aiohttp
+  #start: start_waitress
   port: 8123
   routes:
     - path: /quit

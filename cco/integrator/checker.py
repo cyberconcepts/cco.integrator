@@ -25,6 +25,7 @@ async def check_dir(ctx):
         ctx.logger.debug('msg=%s.' % msg)
         await send(ctx.parent_mb, msg)
     msg = await receive(ctx.mailbox, timeout)
+    ctx.logger.debug('msg=%s.' % msg)
     return msg != quit
 
 def check(path):

@@ -10,10 +10,11 @@ from asyncio import create_task
 
 class Process(object):
 
-    def __init__(self, task):
+    def __init__(self, task, name):
         self.task = task
+        self.name = name
 
 
-def run(target, params):
+def run(target, params, name='???'):
     t = create_task(target(*params))
-    return Process(t)
+    return Process(t, name)

@@ -20,7 +20,7 @@ def run(pctx, name):
     pctx.services.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
     start = getHandler(ctx, 'start')
-    p = process.run(start, [ctx])
+    p = process.run(start, [ctx], name)
     pctx.children.append((p, ctx.mailbox))
 
 
@@ -35,9 +35,10 @@ async def listen(ctx):
 
 async def step(ctx):
     msg = await receive(ctx.mailbox)
-    return action(ctx, msg)
+    ctx.logger.debug('msg=%s.' % msg)
+    return await action(ctx, msg)
 
-def action(ctx, msg):
+async def action(ctx, msg):
     if  msg is quit:
         fct = do_quit
         cfg = None
@@ -47,12 +48,12 @@ def action(ctx, msg):
         if not cfg:
             fct = do_ignore
         else:
-            fct = getHandler(ctx, cfg.get('handler'), cfg.get('module'))
-    return fct(ctx, cfg, msg)
+            fct = getHandler(ctx, cfg.get('handler'), cfg.get('group'))
+    return await fct(ctx, cfg, msg)
 
 # message/action handlers
 
-def do_ignore(ctx, cfg, msg):
+async def do_ignore(ctx, cfg, msg):
     return True
 
 async def do_quit(ctx, cfg, msg):

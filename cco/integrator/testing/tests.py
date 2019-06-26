@@ -51,6 +51,8 @@ async def finish(contexts):
     for ctx in contexts:
         await send(ctx.mailbox, quit)
     await system.wait()
+    #for rec in loggerQueue:
+    #    print(rec)
     system.exit()
 
 # utilities
