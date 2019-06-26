@@ -19,6 +19,7 @@ def move_file(ctx, cfg, msg):
         shutil.copy2(fn, target)
         make_copy(ctx, cfg, 'backup-dir', fn)
         os.remove(fn)
+    return True
 
 
 def register_handlers(reg):

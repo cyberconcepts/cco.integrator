@@ -47,7 +47,7 @@ def action(ctx, msg):
         if not cfg:
             fct = do_ignore
         else:
-            fct = getHandler(ctx, cfg.get('handler'), cfg.get('module'))
+            fct = getHandler(ctx, cfg.get('handler'), cfg.get('group'))
     return fct(ctx, cfg, msg)
 
 # message/action handlers
