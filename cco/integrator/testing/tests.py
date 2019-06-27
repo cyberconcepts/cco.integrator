@@ -20,9 +20,12 @@ home = dirname(abspath(__file__))
 
 async def run():
     prepareFiles()
-    te, ctx = await setup('config-t0.yaml')
-    engine.runTest(test00, te, ctx)
-    await finish([ctx])
+    ctxs = []
+    for cfgname, test in [('config-t0.yaml', test00)]:
+        te, ctx = await setup(cfgname)
+        ctxs.append(ctx)
+        engine.runTest(test, te, ctx)
+    await finish(ctxs)
 
 # tests
 

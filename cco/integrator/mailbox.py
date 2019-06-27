@@ -5,7 +5,7 @@ Mailbox types with send and receive functions
 
 '''
 
-from asyncio import Queue, QueueEmpty, wait_for
+from asyncio import Queue, QueueEmpty, TimeoutError, wait_for
 
 from cco.integrator.message import no_message
 
@@ -30,6 +30,6 @@ async def receive(mb, timeout=None):
         if timeout == 0:
             return await mb.queue.get_nowait()
         return await wait_for(mb.queue.get(), timeout)
-    except QueueEmpty:
+    except (QueueEmpty, TimeoutError):
         return no_message
 

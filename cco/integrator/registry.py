@@ -44,12 +44,11 @@ default_registry = Registry()
 
 standard_prefix = 'cco.integrator'
 standard_modules = ['actor', 'checker', 'worker',
-                    'webserver.aio']
-                    #'webserver.wsgi']
+                    'server.web']
 
 def load(modules=standard_modules, 
-                  prefix=standard_prefix,
-                  registry=None):
+         prefix=standard_prefix,
+         registry=None):
     if registry is None:
         registry = default_registry
     for m in modules:

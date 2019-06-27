@@ -22,7 +22,7 @@ worker:
       backup-dir: data/backup
 
 webserver:
-  group: webserver.aio
+  group: server.web
   port: 8123
   routes:
     - path: /quit

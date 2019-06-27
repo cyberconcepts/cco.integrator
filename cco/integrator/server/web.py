@@ -1,14 +1,11 @@
 '''
-A WSGI-compliant web server communicating with the top actor (dispatcher).
+A web server based on asyncio and aiohttp
+communicating with the top-level actor (dispatcher).
 
-Server component: waitress
-App based on: Werkzeug
-  
-2019-05-28 helmutm@cy55.de
+2019-06-27 helmutm@cy55.de
 '''
 
 from aiohttp import web
-import json
 
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import no_message, quit
@@ -63,4 +60,4 @@ async def do_quit(request):
 def register_handlers(reg):
     declare_handlers(
             [start, do_poll, do_quit], 
-            'webserver.aio', reg)
+            'server.web', reg)
