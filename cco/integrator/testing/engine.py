@@ -18,13 +18,12 @@ def init():
     return Engine()
 
 
-def runTest(fct, eng, ctx):
-    try:
-        fct(eng, ctx)
-    except:
-        eng.show()
-        print(traceback.format_exc())
-        #system.exit()
+async def runTest(fct, eng, ctx):
+    #try:
+    await fct(eng, ctx)
+    #except:
+    #    eng.show()
+    #    print(traceback.format_exc())
 
 
 class Engine(object):

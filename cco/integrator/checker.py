@@ -23,10 +23,10 @@ async def check_dir(ctx):
         cmd = action.get('command', '???')
         act = action.get('actor', '???')
         msg = Message(dict(actor=act, command=cmd, filenames=fns), commandMT)
-        ctx.logger.debug('msg=%s.' % msg)
+        ctx.logger.debug('%s send: msg=%s.' % (ctx.pname, msg))
         await send(ctx.parent_mb, msg)
     msg = await receive(ctx.mailbox, timeout)
-    ctx.logger.debug('msg=%s.' % msg)
+    ctx.logger.debug('%s recv: msg=%s.' % (ctx.pname, msg))
     if msg is quit:
         return await do_quit(ctx, None, msg)
     else:
@@ -35,6 +35,7 @@ async def check_dir(ctx):
 def check(path):
     return [f for f in glob(join(path, '*')) if isfile(f)]
 
+#*** register_handlers ***
 
 def register_handlers(reg):
     registry.declare_handlers([check_dir], 'checker', reg)

@@ -25,6 +25,9 @@ webserver:
   group: server.web
   port: 8123
   routes:
+    - path: /integrator/
+      name: integrator
+      handler: do_default
     - path: /quit
       name: quit
       handler: do_quit

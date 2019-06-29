@@ -12,11 +12,11 @@ import yaml
 def loadConfig(home, name):
     confPath = join(home, 'etc')
     confData = loadYaml(join(confPath, name))
-    loadLoggerConf(join(confPath, 'logging.yaml'))
     return confData
 
-def loadLoggerConf(path):
-    logConf = loadYaml(path)
+def loadLoggerConf(home, name):
+    confPath = join(home, 'etc')
+    logConf = loadYaml(join(confPath, 'logging.yaml'))
     logging.config.dictConfig(logConf)
 
 def loadYaml(path):

@@ -21,6 +21,7 @@ def run(pctx, name):
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
     start = getHandler(ctx, 'start')
     p = process.run(start, [ctx], name)
+    ctx.pname = name
     pctx.children.append((p, ctx.mailbox))
 
 
@@ -32,10 +33,12 @@ async def listen(ctx):
     step = getHandler(ctx, 'step')
     while await step(ctx):
         pass
+    ctx.logger.info('%s finished' % ctx.pname)
 
 async def step(ctx):
     msg = await receive(ctx.mailbox)
-    ctx.logger.debug('msg=%s.' % msg)
+    ctx.logger.debug('%s recv: msg=%s.' % (ctx.pname, msg))
+    action = getHandler(ctx, 'action')
     return await action(ctx, msg)
 
 async def action(ctx, msg):
@@ -49,7 +52,8 @@ async def action(ctx, msg):
             fct = do_ignore
         else:
             fct = getHandler(ctx, cfg.get('handler'), cfg.get('group'))
-    return await fct(ctx, cfg, msg)
+    res = await fct(ctx, cfg, msg)
+    return res
 
 # message/action handlers
 
@@ -58,10 +62,11 @@ async def do_ignore(ctx, cfg, msg):
 
 async def do_quit(ctx, cfg, msg):
     for (p, mb) in ctx.children:
+        print('quit, p=%s, done? %s' % (p.name, p.task.done()))
         await send(mb, quit)
     return False
 
-# handler registration
+#*** register_handlers ***
 
 def register_handlers(reg):
     declare_handlers(

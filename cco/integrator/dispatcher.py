@@ -23,7 +23,7 @@ async def listen(ctx):
 
 async def step(ctx):
     msg = await receive(ctx.mailbox)
-    ctx.logger.debug('msg=%s.' % msg)
+    ctx.logger.debug('dispatcher recv: msg=%s.' % msg)
     if msg is quit:
         return await actor.do_quit(ctx, None, msg)
     target = msg.payload.get('actor')

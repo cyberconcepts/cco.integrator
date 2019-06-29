@@ -9,9 +9,10 @@ from os.path import abspath, basename, dirname, join
 import os
 import shutil
 
+from cco.integrator.config import loadLoggerConf
 from cco.integrator import context, dispatcher, registry, system
 from cco.integrator.mailbox import send
-from cco.integrator.message import quit
+from cco.integrator.message import Message, dataMT, quit
 from cco.integrator.testing import engine
 from cco.integrator.testing.logger import loggerQueue
 
@@ -19,17 +20,20 @@ home = dirname(abspath(__file__))
 
 
 async def run():
+    loadLoggerConf(home, 'logging.yaml')
     prepareFiles()
     ctxs = []
-    for cfgname, test in [('config-t0.yaml', test00)]:
+    for cfgname, test in tests:
         te, ctx = await setup(cfgname)
         ctxs.append(ctx)
-        engine.runTest(test, te, ctx)
+        await engine.runTest(test, te, ctx)
+        te.show()
+        teardown(te, ctx)
     await finish(ctxs)
 
 # tests
 
-def test00(te, ctx):
+async def test00(te, ctx):
     te.checkEqual(len(ctx.children), 3)
     logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
@@ -37,7 +41,18 @@ def test00(te, ctx):
     te.checkRegexAny(logMsgs, r'starting actor webserver.*')
     te.checkRegexAny(logMsgs, r".* payload={.*'command': .*}.")
     te.checkFiles(join(home, 'data', 'target'), ['test.txt'])
-    te.show()
+
+async def test01(te, ctx):
+    te.checkEqual(len(ctx.children), 1)
+    (p, mb) = ctx.children[0]
+    await send(mb, Message(dict(value='dummy'), dataMT))
+
+
+tests = [
+    ('config-t0.yaml', test00),
+    ('config-t1.yaml', test01),
+]
+
 
 # setup, teardown / finish
 
@@ -51,7 +66,11 @@ async def setup(cfgname='config.yaml'):
     await system.wait()
     return (te, ctx)
 
+def teardown(te, ctx):
+    pass
+
 async def finish(contexts):
+    await system.wait()
     for ctx in contexts:
         await send(ctx.mailbox, quit)
     await system.wait()

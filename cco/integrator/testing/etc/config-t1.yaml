@@ -1,0 +1,9 @@
+version: 1
+
+actors:
+  - webclient
+
+webclient:
+  group: client.web
+  server-url: http://localhost:8123/integrator
+  protocol: default

@@ -32,8 +32,6 @@ setup(name='cco.integrator',
           'setuptools',
           'aiohttp',
           'pyyaml',
-          #'waitress',
-          #'Werkzeug',
           # -*- Extra requirements: -*-
       ],
       entry_points="""

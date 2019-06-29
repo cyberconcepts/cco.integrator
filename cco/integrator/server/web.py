@@ -29,11 +29,19 @@ async def start(ctx):
     await runner.setup()
     site = web.TCPSite(runner, 'localhost', port)
     await site.start()
+    ctx.logger.info('%s finished' % ctx.pname)
 
 
 def build_response(result, msg):
     data = {'result': result, 'message': msg}
     return web.json_response(data)
+
+async def do_default(request):
+    ctx = request.app['context']
+    name = request.match_info.route.name
+    cfg = request.app['routes'][name]
+    #await send(ctx.parent_mb, Message())
+    return build_response('ok', name)
 
 async def do_poll(request):
     ctx = request.app['context']
@@ -59,5 +67,5 @@ async def do_quit(request):
 
 def register_handlers(reg):
     declare_handlers(
-            [start, do_poll, do_quit], 
+            [start, do_default, do_poll, do_quit], 
             'server.web', reg)

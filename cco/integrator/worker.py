@@ -12,19 +12,17 @@ import shutil
 from cco.integrator import registry
 
 
-def move_file(ctx, cfg, msg):
+async def move_file(ctx, cfg, msg):
     target = join(ctx.home, cfg['target-dir'])
     for fn in msg.payload['filenames']:
         ctx.logger.debug('move_file; fn=%s, target=%s.' % (fn, target))
-        shutil.copy2(fn, target)
-        make_copy(ctx, cfg, 'backup-dir', fn)
-        os.remove(fn)
+        try:
+            shutil.copy2(fn, target)
+            make_copy(ctx, cfg, 'backup-dir', fn)
+            os.remove(fn)
+        except:
+            ctx.logger.error(traceback.format_exc())
     return True
-
-
-def register_handlers(reg):
-    registry.declare_handlers([move_file], 'worker', reg)
-
 
 # utility functions
 
@@ -37,3 +35,8 @@ def make_copy(ctx, cfg, dname, fn):
             ctx.logger.warn('make_copy: destination %s not found.' % path)
         else:
             shutil.copy2(fn, path)
+
+#*** register_handlers ***
+
+def register_handlers(reg):
+    registry.declare_handlers([move_file], 'worker', reg)

@@ -33,7 +33,7 @@ class Context(object):
                  cfgname='config.yaml', 
                  registry=None, services=None, parent_mb=None,
                  config=None, logger=None, 
-                 mailbox=None, children=None):
+                 mailbox=None, children=None, pname=None):
         self.home = home
         self.system = system
         self.state = state
@@ -44,4 +44,5 @@ class Context(object):
         self.logger = logger or getLogger('cco.integrator')
         self.mailbox = mailbox or createMailbox()
         self.children = children or []
+        self.pname = pname
 
