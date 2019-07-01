@@ -15,15 +15,18 @@ from cco.integrator.registry import getHandler, declare_handlers
 
 
 def run(pctx, name):
-    conf = pctx.config.get(name, {})
-    ctx = context.setupChild(pctx, conf)
-    pctx.services.setdefault('actors', {})[name] = ctx.mailbox
-    ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
+    ctx = setup(pctx, name)
     start = getHandler(ctx, 'start')
     p = process.run(start, ctx, name)
-    ctx.pname = name
     pctx.children.append((p, ctx.mailbox))
 
+def setup(pctx, name):
+    conf = pctx.config.get(name, {})
+    ctx = context.setupChild(pctx, conf)
+    ctx.pname = name
+    pctx.services.setdefault('actors', {})[name] = ctx.mailbox
+    ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
+    return ctx
 
 async def start(ctx):
     listen = getHandler(ctx, 'listen')
@@ -43,6 +46,7 @@ async def step(ctx):
 
 async def action(ctx, msg):
     if  msg is quit:
+        # TODO: use getHandler(ctx, 'do_quit')
         fct = do_quit
         cfg = None
     else:

@@ -7,6 +7,7 @@ communicating with the top-level actor (dispatcher).
 
 from aiohttp import web
 
+from cco.integrator import actor
 from cco.integrator.mailbox import receive, send
 from cco.integrator.message import no_message, quit
 from cco.integrator.registry import getHandler, declare_handlers
@@ -28,8 +29,27 @@ async def start(ctx):
     runner = web.AppRunner(app)
     await runner.setup()
     site = web.TCPSite(runner, 'localhost', port)
+    ctx.state = site
     await site.start()
+    await listen(ctx)
     ctx.logger.info('%s finished' % ctx.pname)
+
+async def listen(ctx):
+    while await step(ctx):
+        pass
+
+async def step(ctx):
+    msg = await receive(ctx.mailbox)
+    ctx.logger.debug('webserver recv: msg=%s.' % msg)
+    if msg is quit:
+        await stop_site(ctx)
+        return await actor.do_quit(ctx, None, msg)
+    return True
+
+async def stop_site(ctx):
+    site = ctx.state
+    await site.stop()
+    return False
 
 
 def build_response(result, msg):
