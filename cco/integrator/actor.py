@@ -20,7 +20,7 @@ def run(pctx, name):
     pctx.services.setdefault('actors', {})[name] = ctx.mailbox
     ctx.logger.debug('starting actor %s; config=%s.' % (name, conf))
     start = getHandler(ctx, 'start')
-    p = process.run(start, [ctx], name)
+    p = process.run(start, ctx, name)
     ctx.pname = name
     pctx.children.append((p, ctx.mailbox))
 
@@ -62,8 +62,10 @@ async def do_ignore(ctx, cfg, msg):
 
 async def do_quit(ctx, cfg, msg):
     for (p, mb) in ctx.children:
-        print('quit, p=%s, done? %s' % (p.name, p.task.done()))
-        await send(mb, quit)
+        if p.task.done():
+            ctx.logger.warn('Task %s already finished' % p.name)
+        else:
+            await send(mb, quit)
     return False
 
 #*** register_handlers ***

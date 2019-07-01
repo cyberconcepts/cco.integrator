@@ -8,6 +8,7 @@ Actors for doing some simple real work.
 import os
 from os.path import isdir, join
 import shutil
+import traceback
 
 from cco.integrator import registry
 

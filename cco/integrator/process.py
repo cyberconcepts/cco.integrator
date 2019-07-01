@@ -6,6 +6,7 @@ Creation and handling of actor processes (mostly just threads)
 '''
 
 from asyncio import create_task
+import traceback
 
 
 class Process(object):
@@ -15,6 +16,13 @@ class Process(object):
         self.name = name
 
 
-def run(target, params, name='???'):
-    t = create_task(target(*params))
+def run(target, ctx, name='???'):
+    #t = create_task(target(ctx))
+    t = create_task(runExcept(target, ctx))
     return Process(t, name)
+
+async def runExcept(target, ctx):
+    try:
+        await (target(ctx))
+    except:
+        ctx.logger.error(traceback.format_exc())
