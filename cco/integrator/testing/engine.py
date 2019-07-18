@@ -1,22 +1,43 @@
 '''
 A simple testing engine, 
 i.e. a set of classes and functions for 
-checking, collecting, presenting tests
+running tests and for collecting and presenting test results
 
 2019-06-19 helmutm@cy55.de
 '''
 
 from glob import glob
-from os.path import basename, join
+from os.path import abspath, basename, dirname, join
 import re
 import traceback
 
-from cco.integrator import system
+from cco.integrator import context, dispatcher, registry, system
+from cco.integrator.mailbox import send
+from cco.integrator.message import Message, dataMT, quit
+
+home = dirname(abspath(__file__))
 
 
-def init():
-    return Engine()
+async def init():
+    pass
 
+async def setup(cfgname='config.yaml', home=home, name='???'):
+    te = create_engine(name)
+    reg = registry.load()
+    ctx = context.setup(
+            system='linux', home=home, cfgname=cfgname, registry=reg)
+    dispatcher.run(ctx)
+    await system.wait()
+    return (te, ctx)
+
+def teardown(te, ctx):
+    pass
+
+async def finish(contexts):
+    await system.wait()
+    for ctx in contexts:
+        await send(ctx.mailbox, quit)
+    await system.wait()
 
 async def runTest(fct, eng, ctx):
     #try:
@@ -25,19 +46,46 @@ async def runTest(fct, eng, ctx):
     #    eng.show()
     #    print(traceback.format_exc())
 
+async def run(tests, init=init, setup=setup, teardown=teardown, finish=finish,
+              home=home):
+    await init()
+    ctxs = []
+    for test in tests:
+        te, ctx = await setup(test.cfgname, home, test.name)
+        ctxs.append(ctx)
+        await runTest(test.fct, te, ctx)
+        te.show()
+        teardown(te, ctx)
+    await finish(ctxs)
 
-class Engine(object):
 
-    def __init__(self):
+class Test:
+
+    def __init__(self, cfgname, fct, name=None):
+        self.cfgname = cfgname
+        self.fct = fct
+        self.name = name or fct.__name__
+
+# test engine
+
+def create_engine(name='???'):
+    return Engine(name)
+
+class Engine:
+
+    def __init__(self, name):
+        self.name = name
         self.count = 0
         self.nok = self.nfailed = 0
         self.items = []
 
     def show(self):
         for item in self.items:
-            item.show()
+            if item.result == failed:
+                item.show()
         if self.nfailed:
             print('%s tests out of %s failed!' % (self.nfailed, self.count))
+        print('%s: %s tests run.' % (self.name, self.count))
 
     # check methods
 

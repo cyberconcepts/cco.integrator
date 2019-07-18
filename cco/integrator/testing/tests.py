@@ -20,16 +20,7 @@ home = dirname(abspath(__file__))
 
 
 async def run():
-    loadLoggerConf(home, 'logging.yaml')
-    prepareFiles()
-    ctxs = []
-    for cfgname, test in tests:
-        te, ctx = await setup(cfgname)
-        ctxs.append(ctx)
-        await engine.runTest(test, te, ctx)
-        te.show()
-        teardown(te, ctx)
-    await finish(ctxs)
+    await engine.run(tests, init, home=home)
 
 # tests
 
@@ -49,36 +40,16 @@ async def test01(te, ctx):
 
 
 tests = [
-    ('config-t0.yaml', test00),
-    ('config-t1.yaml', test01),
+    engine.Test('config-t0.yaml', test00),
+    engine.Test('config-t1.yaml', test01),
 ]
 
 
-# setup, teardown / finish
+# init / setup, teardown / finish
 
-async def setup(cfgname='config.yaml'):
-    te = engine.init()
-    reg = registry.load()
-    ctx = context.setup(
-            system='linux', home=home, cfgname=cfgname, registry=reg)
-    dispatcher.run(ctx)
-    #await dispatcher.start(ctx)
-    await system.wait()
-    return (te, ctx)
-
-def teardown(te, ctx):
-    pass
-
-async def finish(contexts):
-    await system.wait()
-    for ctx in contexts:
-        await send(ctx.mailbox, quit)
-    await system.wait()
-    #for rec in loggerQueue:
-    #    print(rec)
-    #system.exit()
-
-# utilities
+async def init():
+    loadLoggerConf(home, 'logging.yaml')
+    prepareFiles()
 
 def prepareFiles():
     dataDir = join(home, 'data')
