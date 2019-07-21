@@ -21,14 +21,13 @@ home = dirname(abspath(__file__))
 async def init():
     pass
 
-async def setup(cfgname='config.yaml', home=home, name='???'):
-    te = create_engine(name)
+async def setup(test, home=home, name='???'):
     reg = registry.load()
     ctx = context.setup(
-            system='linux', home=home, cfgname=cfgname, registry=reg)
+            system='linux', home=home, cfgname=test.cfgname, registry=reg)
     dispatcher.run(ctx)
     await system.wait()
-    return (te, ctx)
+    return ctx
 
 def teardown(te, ctx):
     pass
@@ -39,9 +38,9 @@ async def finish(contexts):
         await send(ctx.mailbox, quit)
     await system.wait()
 
-async def runTest(fct, eng, ctx):
+async def runTest(test, ctx):
     #try:
-    await fct(eng, ctx)
+    await test.fct(test, ctx)
     #except:
     #    eng.show()
     #    print(traceback.format_exc())
@@ -51,41 +50,37 @@ async def run(tests, init=init, setup=setup, teardown=teardown, finish=finish,
     await init()
     ctxs = []
     for test in tests:
-        te, ctx = await setup(test.cfgname, home, test.name)
+        ctx = await setup(test, home)
         ctxs.append(ctx)
-        await runTest(test.fct, te, ctx)
-        te.show()
-        teardown(te, ctx)
+        await runTest(test, ctx)
+        test.show()
+        teardown(test, ctx)
     await finish(ctxs)
 
 
-class Test:
-
-    def __init__(self, cfgname, fct, name=None):
-        self.cfgname = cfgname
-        self.fct = fct
-        self.name = name or fct.__name__
 
 # test engine
 
-def create_engine(name='???'):
-    return Engine(name)
+class Test:
 
-class Engine:
-
-    def __init__(self, name):
-        self.name = name
+    def __init__(self, fct, cfgname='config.yaml', name=None):
+        self.cfgname = cfgname
+        self.fct = fct
+        self.name = name or fct.__name__
         self.count = 0
         self.nok = self.nfailed = 0
         self.items = []
 
     def show(self):
-        for item in self.items:
-            if item.result == failed:
-                item.show()
         if self.nfailed:
-            print('%s tests out of %s failed!' % (self.nfailed, self.count))
-        print('%s: %s tests run.' % (self.name, self.count))
+            print('%s: failed tests:' % (self.name))
+            for item in self.items:
+                if item.result == failed:
+                    item.show()
+            print('%s: %s tests out of %s failed!' % 
+                  (self.name, self.nfailed, self.count))
+        else:
+            print('%s: %s tests OK.' % (self.name, self.count))
 
     # check methods
 
@@ -97,18 +92,18 @@ class Engine:
         self.setOK()
 
     def checkEqual(self, vc, vx):
-        self.checkCond(vc == vx, '%s != %s' % (vc, vx))
+        self.checkCond(vc == vx, '%r != %r' % (vc, vx))
 
     def checkRegex(self, vc, pattern):
         vx = re.compile(pattern)
-        self.checkCond(vx.search(vc), '%s *does not match* %s' % (vc, pattern))
+        self.checkCond(vx.search(vc), '%r does not match %r' % (vc, pattern))
 
     def checkRegexAny(self, coll, pattern):
         vx = re.compile(pattern)
         for vc in coll:
             if vx.search(vc):
                 return self.setOK()
-        self.setFailed('pattern %s not found in collection\n%s' % 
+        self.setFailed('pattern %r not found in collection\n%s' % 
                        (pattern, coll))
 
     def checkFiles(self, path, vx):

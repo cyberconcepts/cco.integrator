@@ -40,8 +40,8 @@ async def test01(te, ctx):
 
 
 tests = [
-    engine.Test('config-t0.yaml', test00),
-    engine.Test('config-t1.yaml', test01),
+    engine.Test(test00, 'config-t0.yaml'),
+    engine.Test(test01, 'config-t1.yaml'),
 ]
 
 
