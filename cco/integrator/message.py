@@ -5,15 +5,15 @@ Message types and related functions
 
 '''
 
+from cco.integrator.common import Named
+
 no_message = object()
 
 message_types = {}
 
 
-class MessageType(object):
+class MessageType(Named):
     priority = 5
-    def __init__(self, name):
-        self.name = name
 
 class ControlMT(MessageType):
     priority = 2

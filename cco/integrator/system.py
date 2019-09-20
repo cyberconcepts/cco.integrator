@@ -6,8 +6,31 @@ Operating system utilities
 
 from asyncio import sleep
 from os.path import abspath, join
-import os, signal, sys
-#from time import sleep
+import argparse, os, signal, sys
+
+from cco.integrator import context, dispatcher, registry
+
+# system startup
+
+async def start(home):
+    reg = registry.load()
+    params = cmdlineArgs(system='linux')
+    ctx = context.setup(home=home, registry=reg, **params)
+    await dispatcher.start(ctx)
+    await wait()
+    exit()
+
+# command line parsing
+
+def cmdlineArgs(system=None, cfgname='config.yaml'):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--cfgname", help="config file name (config.yaml)",
+                        type=str, default=cfgname)
+    args = parser.parse_args()
+    if not args:
+        exit(-1)
+    #print('args: {}'.format(args))
+    return vars(args)
 
 # filesystem utilities
 

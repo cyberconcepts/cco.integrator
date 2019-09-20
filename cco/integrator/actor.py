@@ -45,6 +45,7 @@ async def step(ctx):
     return await action(ctx, msg)
 
 async def action(ctx, msg):
+    # TODO: get handler/action using message type
     if  msg is quit:
         # TODO: use getHandler(ctx, 'do_quit')
         fct = do_quit

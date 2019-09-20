@@ -12,6 +12,7 @@ from cco.integrator.registry import default_registry
 
 
 def setup(**kw):
+    #print('context.setup: {}'.format(kw))
     return Context(**kw)
 
 def setupChild(p, config=None, state=None, logger=None):

@@ -5,15 +5,13 @@ Application Integrator (Linux version):
 
 '''
 
+import asyncio
 from os.path import abspath, dirname
 
-from cco.integrator import context, dispatcher, registry, system
+from cco.integrator import system
 
 home = abspath(dirname(dirname(__file__)))
 
 
 if __name__ == '__main__':
-    reg = registry.load()
-    ctx = context.setup(system='linux', home=home)
-    dispatcher.start(ctx)
-    system.exit()
+    asyncio.run(system.start(home))

@@ -8,8 +8,10 @@ Creation and handling of actor processes (mostly just threads)
 from asyncio import create_task
 import traceback
 
+from cco.integrator.common import Named
 
-class Process(object):
+
+class Process(Named):
 
     def __init__(self, task, name):
         self.task = task
