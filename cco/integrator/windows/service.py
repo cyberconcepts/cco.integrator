@@ -17,9 +17,9 @@ import win32serviceutil
 
 class WinService(win32serviceutil.ServiceFramework):
     
-    _svc_name_ = 'winsvc'
-    _svc_display_name_ = 'Windows Service'
-    _svc_description_ = 'Basic Service for processing files and data'
+    _svc_name_ = 'cco.integrator'
+    _svc_display_name_ = 'cco.integrator service'
+    _svc_description_ = 'Integrator Service for processing files and data'
 
     def __init__(self, args):
         win32serviceutil.ServiceFramework.__init__(self, args)
@@ -27,17 +27,12 @@ class WinService(win32serviceutil.ServiceFramework):
         socket.setdefaulttimeout(60)
 
     def start(self):
-        ''' Override in subclass.'''
+        # to be implemented by subclass
         pass
 
     def stop(self):
-        ''' Override in subclass.'''
+        # to be implemented by subclass
         pass
-
-    def main(self):
-        ''' Override in subclass.'''
-        pass
-        #win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
     # win32 service call back methods
 
@@ -45,16 +40,10 @@ class WinService(win32serviceutil.ServiceFramework):
         self.stop()
         self.ReportServiceStatus(win32service.SERVICE_STOP_PENDING)
         win32event.SetEvent(self.hWaitStop)
-        self.do_stop = True
 
     def SvcDoRun(self):
-        self.start()
         servicemanager.LogMsg(servicemanager.EVENTLOG_INFORMATION_TYPE,
                               servicemanager.PYS_SERVICE_STARTED,
                               (self._svc_name_, ''))
-        self.main()
-
-
-if __name__ == '__main__':
-    win32serviceutil.HandleCommandLine(WinService)
+        self.start()
 

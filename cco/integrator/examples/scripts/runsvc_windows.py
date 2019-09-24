@@ -18,32 +18,16 @@ import win32serviceutil
 home = abspath(dirname(dirname(__file__)))
 sys.path.insert(0, home)
 
-from cco.integrator import context, dispatcher
-from cco.integrator.mailbox import send
-from cco.integrator.message import quit
-from cco.integrator.windows import base
+from cco.integrator.windows.service import WinService
 
 
-class WinService(base.WinService):
-    
-    _svc_name_ = 'winsvc'
-    _svc_display_name_ = 'Application Integrator Service'
-    _svc_description_ = 'Integrator Service for processing files and data'
+class WinService(service.WinService):
 
     def start(self):
-        self.context = context.setup(system='windows', home=home)
-
-    def stop(self):
-        send(self.context.mailbox, quit)
-
-    def main(self):
-        dispatcher.start(self.context)
+        asyncio.run(system.start(home, system='windows'))
+        #win32event.WaitForSingleObject(self.hWaitStop, win32event.INFINITE)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        ctx = context.setup(system='windows', home=home)
-        dispatcher.start(ctx)
-    else:
-        win32serviceutil.HandleCommandLine(WinService)
+    win32serviceutil.HandleCommandLine(WinService)
 

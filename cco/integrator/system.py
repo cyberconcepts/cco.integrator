@@ -12,9 +12,8 @@ from cco.integrator import context, dispatcher, registry
 
 # system startup
 
-async def start(home):
+async def start(home, **params):
     reg = registry.load()
-    params = cmdlineArgs(system='linux')
     ctx = context.setup(home=home, registry=reg, **params)
     await dispatcher.start(ctx)
     await wait()
@@ -22,10 +21,12 @@ async def start(home):
 
 # command line parsing
 
-def cmdlineArgs(system=None, cfgname='config.yaml'):
+def cmdlineArgs(system='???', cfgname='config.yaml'):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--cfgname", help="config file name (config.yaml)",
                         type=str, default=cfgname)
+    parser.add_argument("-s", "--system", help="operating system (e.g. linux)",
+                        type=str, default=system)
     args = parser.parse_args()
     if not args:
         exit(-1)

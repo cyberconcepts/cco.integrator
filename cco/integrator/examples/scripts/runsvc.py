@@ -14,4 +14,5 @@ home = abspath(dirname(dirname(__file__)))
 
 
 if __name__ == '__main__':
-    asyncio.run(system.start(home))
+    params = system.cmdlineArgs(system='linux')
+    asyncio.run(system.start(home, **params))
