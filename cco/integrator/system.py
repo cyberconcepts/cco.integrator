@@ -25,8 +25,6 @@ def cmdlineArgs(system='???', cfgname='config.yaml'):
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--cfgname", help="config file name (config.yaml)",
                         type=str, default=cfgname)
-    parser.add_argument("-s", "--system", help="operating system (e.g. linux)",
-                        type=str, default=system)
     args = parser.parse_args()
     if not args:
         exit(-1)

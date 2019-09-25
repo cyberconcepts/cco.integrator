@@ -30,7 +30,7 @@ def setupChild(p, config=None, state=None, logger=None):
 
 class Context(object):
 
-    def __init__(self, home='.', system='dummy', state=None, 
+    def __init__(self, home='.', system='generic', state=None, 
                  cfgname='config.yaml', 
                  registry=None, services=None, parent_mb=None,
                  config=None, logger=None, 
