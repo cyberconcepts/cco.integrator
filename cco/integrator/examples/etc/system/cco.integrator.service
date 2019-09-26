@@ -1,0 +1,13 @@
+[Unit]
+Description=cco.integrator
+
+[Service]
+Type=simple
+User=cco
+Group=cco
+WorkingDirectory=/home/cco/projects/cco.integrator
+ExecStart=/home/cco/bin/python3.7 bin/run scripts/runsvc.py
+Restart=no
+
+[Install]
+WantedBy=multi-user.target
