@@ -1,6 +1,6 @@
 '''
-Application Integrator (Linux version):
-  
+Application Integrator start script (generic version):
+
 2019-04-13 helmutm@cy55.de
 
 '''

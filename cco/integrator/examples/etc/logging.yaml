@@ -13,19 +13,11 @@ handlers:
     level: DEBUG
     formatter: simple
     filename: var/log/cco.integrator.log
-    maxBytes: 10MB
+    maxBytes: 10485760
     backupCount: 3
 loggers:
   cco.integrator:
-    level: INFO
-    handlers: [console, file]
-    propagate: no
-  integrator.webserver:
-    level: INFO
-    handlers: [console, file]
-    propagate: no
-  waitress:
-    level: INFO
+    level: DEBUG
     handlers: [console, file]
     propagate: no
 root:

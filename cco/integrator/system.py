@@ -8,12 +8,13 @@ from asyncio import sleep
 from os.path import abspath, join
 import argparse, os, signal, sys
 
-from cco.integrator import context, dispatcher, registry
+from cco.integrator import config, context, dispatcher, registry
 
 # system startup
 
 async def start(home, **params):
     reg = registry.load()
+    config.loadLoggerConf(home)
     ctx = context.setup(home=home, registry=reg, **params)
     await dispatcher.start(ctx)
     await wait()

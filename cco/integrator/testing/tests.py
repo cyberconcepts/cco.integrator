@@ -9,7 +9,6 @@ from os.path import abspath, basename, dirname, join
 import os
 import shutil
 
-from cco.integrator.config import loadLoggerConf
 from cco.integrator import context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
@@ -48,7 +47,6 @@ tests = [
 # init / setup, teardown / finish
 
 async def init():
-    loadLoggerConf(home, 'logging.yaml')
     prepareFiles()
 
 def prepareFiles():

@@ -11,7 +11,7 @@ from os.path import abspath, basename, dirname, join
 import re
 import traceback
 
-from cco.integrator import context, dispatcher, registry, system
+from cco.integrator import config, context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
 
@@ -23,8 +23,9 @@ async def init():
 
 async def setup(test, home=home, name='???'):
     reg = registry.load()
+    config.loadLoggerConf(home, test.loggername)
     ctx = context.setup(
-            system='linux', home=home, cfgname=test.cfgname, registry=reg)
+            system='test', home=home, cfgname=test.cfgname, registry=reg)
     dispatcher.run(ctx)
     await system.wait()
     return ctx
@@ -63,8 +64,12 @@ async def run(tests, init=init, setup=setup, teardown=teardown, finish=finish,
 
 class Test:
 
-    def __init__(self, fct, cfgname='config.yaml', name=None):
+    def __init__(self, fct, 
+                 cfgname='config.yaml', 
+                 loggername='logging.yaml', 
+                 name=None):
         self.cfgname = cfgname
+        self.loggername = loggername
         self.fct = fct
         self.name = name or fct.__name__
         self.count = 0

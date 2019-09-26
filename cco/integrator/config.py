@@ -14,9 +14,9 @@ def loadConfig(home, name):
     confData = loadYaml(join(confPath, name))
     return confData
 
-def loadLoggerConf(home, name):
+def loadLoggerConf(home, name='logging.yaml'):
     confPath = join(home, 'etc')
-    logConf = loadYaml(join(confPath, 'logging.yaml'))
+    logConf = loadYaml(join(confPath, name))
     logging.config.dictConfig(logConf)
 
 def loadYaml(path):

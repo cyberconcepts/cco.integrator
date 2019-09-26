@@ -39,6 +39,7 @@ async def step(ctx):
 
 
 def start_actors(ctx):
+    ctx.logger.info('start actors')
     for act in ctx.config.get('actors', []):
         actor.run(ctx, act)
 

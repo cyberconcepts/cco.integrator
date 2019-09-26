@@ -23,7 +23,7 @@ worker:
 
 webserver:
   group: server.web
-  port: 8123
+  port: 8999
   routes:
     - path: /integrator/
       name: integrator
