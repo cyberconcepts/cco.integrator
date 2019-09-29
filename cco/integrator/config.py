@@ -10,18 +10,18 @@ import yaml
 
 
 def loadConfig(home, name):
-    confPath = join(home, 'etc')
-    confData = loadYaml(join(confPath, name))
+    confPath = join(home, 'etc', name)
+    confData = loadYaml(confPath)
     return confData
 
 def loadLoggerConf(home, name='logging.yaml'):
-    confPath = join(home, 'etc')
-    logConf = loadYaml(join(confPath, name))
+    confPath = join(home, 'etc', name)
+    logConf = loadYaml(confPath)
     logging.config.dictConfig(logConf)
 
 def loadYaml(path):
-    f = open(path)
-    data = yaml.load(f.read(), Loader=yaml.SafeLoader) 
-    f.close()
+    with open(path) as f: 
+        data = yaml.load(f.read(), Loader=yaml.SafeLoader) 
+    # TODO: load config include
     return data
 

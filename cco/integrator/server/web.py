@@ -17,9 +17,14 @@ async def start(ctx):
     port = ctx.config.get('port', 8123)
     app = web.Application()
     app['context'] = ctx
-    routeCfgs = ctx.config.get('routes', [])
+    routeCfgs = []
+    rc1 = ctx.config.get('routes') or ['default-routes']
+    for r in rc1:
+        if isinstance(r, str):
+            routeCfgs.extend(getPredefinedRoutes(r))
+        else:
+            routeCfgs.append(r)
     app['routes'] = dict((r['name'], r) for r in routeCfgs)
-
     routes = [web.get(rc['path'], 
                       getHandler(ctx, rc['handler']),
                       name=rc['name']) 
@@ -81,6 +86,18 @@ async def do_quit(request):
     cfg = request.app['routes'][request.match_info.route.name]
     await send(ctx.parent_mb, quit)
     return build_response('ok', 'quit')
+
+# helper functions
+
+predefined_routes = {
+    'default-routes': [
+        dict(path='/control/quit', name='quit', handler='do_quit'),
+        dict(path='/control/poll', name='poll', handler='do_poll'),
+        dict(path='/event', name='event', handler='do_default')]
+}
+
+def getPredefinedRoutes(r):
+    return predefined_routes.get(r) or []
 
 
 #*** register_handlers ***

@@ -14,6 +14,8 @@ from cco.integrator import config, context, dispatcher, registry
 
 async def start(home, **params):
     reg = registry.load()
+    # TODO: load config, including plugins (with registry update):
+    #conf = config.loadConfig(home, cfgname, cfgpath)
     config.loadLoggerConf(home)
     ctx = context.setup(home=home, registry=reg, **params)
     await dispatcher.start(ctx)
@@ -47,9 +49,8 @@ def makePath(ctx, path=None, filename=None):
 
 def savepid(ctx, path=None, filename='cco.integrator.pid'):
     p = makePath(ctx, path, filename)
-    f = open(p, 'w')
-    f.write(getpid())
-    f.close()
+    with open(p, 'w') as f: 
+        f.write(getpid())
 
 def getpid():
     return os.getpid()

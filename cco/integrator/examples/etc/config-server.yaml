@@ -1,5 +1,9 @@
 version: 1
 
+plugins:
+- cco.integrator.plugin.demo
+#- some.app.integrator
+
 actors:
 - webserver
 
@@ -7,9 +11,4 @@ webserver:
   group: server.web
   port: 8123
   routes:
-  - path: /quit
-    name: quit
-    handler: do_quit
-  - path: /integrator
-    name: integrator
-    handler: do_default
+  - default-routes
