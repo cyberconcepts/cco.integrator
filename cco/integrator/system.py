@@ -8,20 +8,6 @@ from asyncio import sleep
 from os.path import abspath, join
 import argparse, os, signal, sys
 
-from cco.integrator import config, context, dispatcher, registry
-
-# system startup
-
-async def start(home, **params):
-    reg = registry.load()
-    # TODO: load config, including plugins (with registry update):
-    #conf = config.loadConfig(home, cfgname, cfgpath)
-    config.loadLoggerConf(home)
-    ctx = context.setup(home=home, registry=reg, **params)
-    await dispatcher.start(ctx)
-    await wait()
-    exit()
-
 # command line parsing
 
 def cmdlineArgs(system='???', cfgname='config.yaml'):
@@ -36,19 +22,20 @@ def cmdlineArgs(system='???', cfgname='config.yaml'):
 
 # filesystem utilities
 
-def makePath(ctx, path=None, filename=None):
+def makePath(home, path=None, filename=None, createdirs=False):
     if path is None:
-        path = ctx.home
+        path = home
     elif not path.startswith('/'):
-        path = join(ctx.home, path)
+        path = join(home, path)
     path = abspath(path)
-    os.makedirs(path)
+    if createdirs:
+        os.makedirs(path)
     return filename and join(path, filename) or path
 
 # process utilities
 
-def savepid(ctx, path=None, filename='cco.integrator.pid'):
-    p = makePath(ctx, path, filename)
+def savepid(home, path=None, filename='cco.integrator.pid'):
+    p = makePath(home, path, filename, createdirs=True)
     with open(p, 'w') as f: 
         f.write(getpid())
 

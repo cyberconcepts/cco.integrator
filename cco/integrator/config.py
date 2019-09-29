@@ -8,14 +8,16 @@ import logging.config
 from os.path import join
 import yaml
 
+from cco.integrator.system import makePath
 
-def loadConfig(home, name):
-    confPath = join(home, 'etc', name)
+
+def loadConfig(home, name='config.yaml', path='etc'):
+    confPath = join(home, path, name)
     confData = loadYaml(confPath)
     return confData
 
-def loadLoggerConf(home, name='logging.yaml'):
-    confPath = join(home, 'etc', name)
+def loadLoggerConf(home, name='logging.yaml', path='etc'):
+    confPath = join(home, path, name)
     logConf = loadYaml(confPath)
     logging.config.dictConfig(logConf)
 

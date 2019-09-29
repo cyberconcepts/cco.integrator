@@ -8,11 +8,10 @@ Application Integrator start script (generic version):
 import asyncio
 from os.path import abspath, dirname
 
-from cco.integrator import system
+from cco.integrator import startup
 
 home = abspath(dirname(dirname(__file__)))
 
 
 if __name__ == '__main__':
-    params = system.cmdlineArgs()
-    asyncio.run(system.start(home, **params))
+    asyncio.run(startup.start(home))
