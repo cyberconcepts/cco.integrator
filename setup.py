@@ -29,12 +29,21 @@ setup(name='cco.integrator',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'setuptools',
-          'aiohttp',
-          'pyyaml',
-          # -*- Extra requirements: -*-
+        'setuptools',
+        'aiohttp',
+        'pyyaml',
+        'mypy',
+        'jsonschema',
+        #'prance',
+        #'strawberry-graphql',
+        # -*- Extra requirements: -*-
       ],
       entry_points="""
-      # -*- Entry points: -*-
+        [console_scripts]
+        dmypy = mypy.dmypy.client:console_entry
+        mypy = mypy.__main__:console_entry
+        stubgen = mypy.stubgen:main
+        jsonschema = jsonschema.cli:main
+        # -*- Entry points: -*-
       """,
       )
