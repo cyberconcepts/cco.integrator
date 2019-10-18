@@ -5,25 +5,25 @@ Data and function definitions for configuration settings
 '''
 
 import logging.config
-from os.path import join
 import yaml
 
 from cco.integrator.system import makePath
 
 
 def loadConfig(home, name='config.yaml', path='etc'):
-    confPath = join(home, path, name)
+    confPath = makePath(home, path, name)
     confData = loadYaml(confPath)
     return confData
 
 def loadLoggerConf(home, name='logging.yaml', path='etc'):
-    confPath = join(home, path, name)
+    confPath = makePath(home, path, name)
     logConf = loadYaml(confPath)
     logging.config.dictConfig(logConf)
 
 def loadYaml(path):
     with open(path) as f: 
         data = yaml.load(f.read(), Loader=yaml.SafeLoader) 
-    # TODO: load config include
+    # TODO: load and merge (?) config include
+    # TODO: validate against JSON schema (if provided)
     return data
 
