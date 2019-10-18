@@ -1,3 +1,5 @@
+#!bin/run
+
 '''
 Application Integrator start script (generic version):
 

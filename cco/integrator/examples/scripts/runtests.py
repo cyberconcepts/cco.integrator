@@ -1,3 +1,5 @@
+#!bin/run
+
 '''
 Run tests for the 'cco.integrator' package.
 
