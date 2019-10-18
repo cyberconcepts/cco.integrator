@@ -1,0 +1,23 @@
+#
+# cco.integrator: config schema
+#
+
+$schema: http://json-schema.org/schema#
+$id: http://cyberconcepts.org/schemas/cco.integrator/config-schema.json
+
+type: object
+properties:
+  version:
+    type: string
+  plugins:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+  actors:
+    type: array
+    uniqueItems: true
+    items:
+      type: string
+additionalProperties:
+  type: object
