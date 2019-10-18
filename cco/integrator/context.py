@@ -28,7 +28,7 @@ def setupChild(p, config=None, state=None, logger=None):
     )
 
 
-class Context(object):
+class Context:
 
     def __init__(self, home='.', system='generic', state=None, 
                  cfgname='config.yaml', 

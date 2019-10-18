@@ -8,6 +8,7 @@
 /scripts/
 /var/
 /__pycache__/
+/.mypy_cache/
 .installed.cfg
 *.egg-info
 *.project

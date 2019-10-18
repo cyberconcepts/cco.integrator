@@ -7,7 +7,7 @@ System startup
 from cco.integrator import config, context, dispatcher, registry, system
 
 
-async def start(home):
+async def start(home: str) -> None:
     params = system.cmdlineArgs()
     reg = registry.load()
     # TODO: load config, including plugins (with registry update):

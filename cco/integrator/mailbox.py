@@ -14,10 +14,10 @@ def createMailbox():
     return Mailbox()
 
 
-class Mailbox(object):
+class Mailbox:
 
-    def __init__(self):
-        self.queue = Queue()
+    def __init__(self) -> None:
+        self.queue: Queue = Queue()
 
 
 async def send(mb, msg):

@@ -8,9 +8,12 @@ from asyncio import sleep
 from os.path import abspath, join
 import argparse, os, signal, sys
 
+from typing import Dict, Optional
+
 # command line parsing
 
-def cmdlineArgs(system='???', cfgname='config.yaml'):
+def cmdlineArgs(system: str = '???', 
+                cfgname: str ='config.yaml') -> Dict[str, str]:
     parser = argparse.ArgumentParser()
     parser.add_argument("-c", "--cfgname", help="config file name (config.yaml)",
                         type=str, default=cfgname)
@@ -22,7 +25,10 @@ def cmdlineArgs(system='???', cfgname='config.yaml'):
 
 # filesystem utilities
 
-def makePath(home, path=None, filename=None, createdirs=False):
+def makePath(home: str, 
+             path: Optional[str] = None, 
+             filename: Optional[str] = None, 
+             createdirs: bool = False) -> str:
     if path is None:
         path = home
     elif not path.startswith('/'):
@@ -34,19 +40,21 @@ def makePath(home, path=None, filename=None, createdirs=False):
 
 # process utilities
 
-def savepid(home, path=None, filename='cco.integrator.pid'):
+def savepid(home: str, 
+            path: Optional[str] = None, 
+            filename: Optional[str] = 'cco.integrator.pid') -> None:
     p = makePath(home, path, filename, createdirs=True)
     with open(p, 'w') as f: 
-        f.write(getpid())
+        f.write(str(getpid()))
 
-def getpid():
+def getpid() -> int:
     return os.getpid()
 
-async def wait(t=0.1):
+async def wait(t: float = 0.1) -> None:
     await sleep(t)
 
-def exit(code=0):
+def exit(code: int = 0) -> None:
     os._exit(code)
 
-def terminate(sig=signal.SIGTERM):
+def terminate(sig: int = signal.SIGTERM) -> None:
     os.kill(getpid(), sig)

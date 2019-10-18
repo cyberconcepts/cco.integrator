@@ -7,6 +7,8 @@ Common class and function definitions
 
 class Named:
 
+    name: str
+
     def __init__(self, name):
         self.name = name
 
