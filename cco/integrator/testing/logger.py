@@ -7,15 +7,15 @@ Logger for testing purposes
 from collections import deque
 import logging
 
-loggerQueue = deque()
+loggerQueue: deque = deque()
 
 
 class QueueHandler(logging.Handler):
 
-    def __init__(self, level=logging.NOTSET):
+    def __init__(self, level: int = logging.NOTSET) -> None:
         logging.Handler.__init__(self, level)
         self.logs = loggerQueue
 
-    def emit(self, logRecord):
+    def emit(self, logRecord: logging.LogRecord) -> None:
         self.logs.append(logRecord)
 

@@ -15,49 +15,11 @@ from cco.integrator import config, context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
 
-home = dirname(abspath(__file__))
+from typing import Any, Callable, Coroutine, List
 
+Context = context.Context
 
-async def init():
-    pass
-
-async def setup(test, home=home, name='???'):
-    reg = registry.load()
-    config.loadLoggerConf(home, test.loggername)
-    ctx = context.setup(
-            system='test', home=home, cfgname=test.cfgname, registry=reg)
-    dispatcher.run(ctx)
-    await system.wait()
-    return ctx
-
-def teardown(te, ctx):
-    pass
-
-async def finish(contexts):
-    await system.wait()
-    for ctx in contexts:
-        await send(ctx.mailbox, quit)
-    await system.wait()
-
-async def runTest(test, ctx):
-    #try:
-    await test.fct(test, ctx)
-    #except:
-    #    eng.show()
-    #    print(traceback.format_exc())
-
-async def run(tests, init=init, setup=setup, teardown=teardown, finish=finish,
-              home=home):
-    await init()
-    ctxs = []
-    for test in tests:
-        ctx = await setup(test, home)
-        ctxs.append(ctx)
-        await runTest(test, ctx)
-        test.show()
-        teardown(test, ctx)
-    await finish(ctxs)
-
+home: str = dirname(abspath(__file__))
 
 
 # test engine
@@ -153,3 +115,54 @@ class Result(object):
 
 ok = Result('OK')
 failed = Result('failed')
+
+
+# testing functions
+
+async def init() -> None:
+    pass
+
+async def setup(test: Test, 
+                home: str) -> Context:
+    reg = registry.load()
+    config.loadLoggerConf(home, test.loggername)
+    ctx = context.setup(
+            system='test', home=home, cfgname=test.cfgname, registry=reg)
+    dispatcher.run(ctx)
+    await system.wait()
+    return ctx
+
+def teardown(te: Test, ctx: Context) -> None:
+    pass
+
+async def finish(contexts: List[Context]) -> None:
+    await system.wait()
+    for ctx in contexts:
+        await send(ctx.mailbox, quit)
+    await system.wait()
+
+async def runTest(test: Test, ctx: Context) -> None:
+    #try:
+    await test.fct(test, ctx)
+    #except:
+    #    eng.show()
+    #    print(traceback.format_exc())
+
+async def run(tests: List[Test], 
+              init: Callable[[], Coroutine[Any, Any, None]] = init, 
+              setup: Callable[[Test, str], Coroutine[Any, Any, Context]] = setup, 
+              teardown: Callable[[Test, Context], None] = teardown, 
+              finish: Callable[[List[Context]], Coroutine[Any, Any, None]] = finish,
+              home: str = home) -> None:
+    await init()
+    ctxs = []
+    for test in tests:
+        ctx = await setup(test, home)
+        ctxs.append(ctx)
+        await runTest(test, ctx)
+        test.show()
+        teardown(test, ctx)
+    await finish(ctxs)
+
+
+
