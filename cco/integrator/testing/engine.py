@@ -15,30 +15,58 @@ from cco.integrator import config, context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
 
-from typing import Any, Callable, Coroutine, List
+from typing import Any, Callable, Collection, Coroutine, List
+from typing import Match, Optional, TypeVar, Union
 
 Context = context.Context
+TestFct = Callable[['Test', Context], Coroutine[Any, Any, None]]
+T = TypeVar('T')
 
 home: str = dirname(abspath(__file__))
 
 
 # test engine
 
+class Result:
+
+    def __init__(self, text: str) -> None:
+        self.text = text
+
+    def __str__(self) -> str:
+        return self.text
+
+ok = Result('OK')
+failed = Result('failed')
+
+
+class Item:
+
+    def __init__(self, number: int, message: str, result: Result) -> None:
+        self.number = number
+        self.message = message
+        self.result = result
+
+    def show(self) -> None:
+        print('test %02i %s %s' % (self.number, self.result, 
+                    self.message and ': ' + self.message or ''))
+
+
 class Test:
 
-    def __init__(self, fct, 
-                 cfgname='config.yaml', 
-                 loggername='logging.yaml', 
-                 name=None):
+    def __init__(self, 
+                 fct: TestFct, 
+                 cfgname: str = 'config.yaml', 
+                 loggername: str = 'logging.yaml', 
+                 name: Optional[str] = None) -> None:
         self.cfgname = cfgname
         self.loggername = loggername
         self.fct = fct
         self.name = name or fct.__name__
         self.count = 0
         self.nok = self.nfailed = 0
-        self.items = []
+        self.items: List[Item] = []
 
-    def show(self):
+    def show(self) -> None:
         if self.nfailed:
             print('%s: failed tests:' % (self.name))
             for item in self.items:
@@ -51,21 +79,22 @@ class Test:
 
     # check methods
 
-    def checkCond(self, cond, msg=None):
+    def checkCond(self, cond: Union[bool, Optional[Match[str]]], 
+                  msg: Optional[str] = None) -> None:
         if not cond:
             if msg is None:
                 msg = 'condition false'
             return self.setFailed(msg)
         self.setOK()
 
-    def checkEqual(self, vc, vx):
+    def checkEqual(self, vc: T, vx: T) -> None:
         self.checkCond(vc == vx, '%r != %r' % (vc, vx))
 
-    def checkRegex(self, vc, pattern):
+    def checkRegex(self, vc: str, pattern: str) -> None:
         vx = re.compile(pattern)
         self.checkCond(vx.search(vc), '%r does not match %r' % (vc, pattern))
 
-    def checkRegexAny(self, coll, pattern):
+    def checkRegexAny(self, coll: Collection[str], pattern: str) -> None:
         vx = re.compile(pattern)
         for vc in coll:
             if vx.search(vc):
@@ -73,48 +102,24 @@ class Test:
         self.setFailed('pattern %r not found in collection\n%s' % 
                        (pattern, coll))
 
-    def checkFiles(self, path, vx):
+    def checkFiles(self, path: str, vx: List[str]) -> None:
         vc = [basename(p) for p in glob(join(path, '*'))]
         self.checkEqual(sorted(vc), sorted(vx))
 
 
     # utility methods
 
-    def update(self, msg, res):
+    def update(self, msg: str, res: Result) -> None:
         self.count += 1
         self.items.append(Item(self.count, msg, res))
 
-    def setOK(self):
+    def setOK(self) -> None:
         self.update('', ok)
         self.nok += 1
 
-    def setFailed(self, msg):
+    def setFailed(self, msg: str) -> None:
         self.update(msg, failed)
         self.nfailed += 1
-
-
-class Item(object):
-
-    def __init__(self, number, message, result):
-        self.number = number
-        self.message = message
-        self.result = result
-
-    def show(self):
-        print('test %02i %s %s' % (self.number, self.result, 
-                    self.message and ': ' + self.message or ''))
-
-
-class Result(object):
-
-    def __init__(self, text):
-        self.text = text
-
-    def __str__(self):
-        return self.text
-
-ok = Result('OK')
-failed = Result('failed')
 
 
 # testing functions
