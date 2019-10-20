@@ -7,11 +7,9 @@ Common class and function definitions
 
 class Named:
 
-    name: str
-
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         self.name = name
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '<%s %s>' % (self.__class__.__name__, self.name)
 

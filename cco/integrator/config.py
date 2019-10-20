@@ -9,6 +9,12 @@ import yaml
 
 from cco.integrator.system import makePath
 
+from typing import Any, Dict, List, Union
+
+ConfigList = List[Any]
+ConfigDict = Dict[str, Any]
+Config = Dict[str, Union[bool, str, int, float, ConfigList, ConfigDict]]
+
 
 def loadConfig(home, name='config.yaml', path='etc'):
     confPath = makePath(home, path, name)

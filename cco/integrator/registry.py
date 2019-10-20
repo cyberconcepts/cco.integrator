@@ -7,28 +7,37 @@ Function registry for controlled dynamic addressing via config options
 
 from importlib import import_module
 
+from typing import Callable, Dict, List, Optional, cast
+from typing import TYPE_CHECKING
 
-class Registry(object):
+if TYPE_CHECKING:
+    from cco.integrator.context import Context
+else:
+    Context = 'Context'
 
-    def __init__(self):
-        self.groups = {}
+class Registry:
 
-    def __str__(self):
+    def __init__(self) -> None:
+        self.groups: Dict[str, Group] = {}
+
+    def __str__(self) -> str:
         return '<Registry groups=%s>' % self.groups
 
 
-class Group(object):
+class Group:
 
-    def __init__(self):
-        self.handlers = {}
+    def __init__(self) -> None:
+        self.handlers: Dict[str, Callable] = {}
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '<Group handlers=%s>' % self.handlers
 
 
-def getHandler(ctx, name, group=None, defGroup='actor'):
-    group = group or ctx.config.get('group')
-    name = ctx.config.get(name) or name
+def getHandler(ctx: Context, name: str, 
+               group: Optional[str] = None, 
+               defGroup: str = 'actor') -> Optional[Callable]:
+    group = cast(Optional[str], group or ctx.config.get('group'))
+    name = cast(str, ctx.config.get(name) or name)
     if group is None and '.' in name:
         group, name = name.rsplit('.', 1)
     if group is None:
@@ -46,9 +55,9 @@ standard_prefix = 'cco.integrator'
 standard_modules = ['actor', 'checker', 'worker',
                     'client.web', 'server.web']
 
-def load(modules=standard_modules, 
-         prefix=standard_prefix,
-         registry=None):
+def load(modules: List[str] = standard_modules, 
+         prefix: str = standard_prefix,
+         registry: Optional[Registry] = None) -> Registry:
     if registry is None:
         registry = default_registry
     for m in modules:
@@ -59,7 +68,9 @@ def load(modules=standard_modules,
             regFct(registry)
     return registry
 
-def declare_handlers(fcts, group=None, registry=None):
+def declare_handlers(fcts: List[Callable], 
+                     group: Optional[str] = None, 
+                     registry: Optional[Registry] = None) -> None:
     if registry is None:
         registry = default_registry
     for f in fcts:
