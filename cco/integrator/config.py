@@ -16,17 +16,21 @@ ConfigDict = Dict[str, Any]
 Config = Dict[str, Union[bool, str, int, float, ConfigList, ConfigDict]]
 
 
-def loadConfig(home, name='config.yaml', path='etc'):
+def loadConfig(home: str, 
+               name: str = 'config.yaml', 
+               path: str = 'etc') -> Config:
     confPath = makePath(home, path, name)
     confData = loadYaml(confPath)
     return confData
 
-def loadLoggerConf(home, name='logging.yaml', path='etc'):
+def loadLoggerConf(home: str, 
+                   name: str = 'logging.yaml', 
+                   path: str = 'etc') -> None:
     confPath = makePath(home, path, name)
     logConf = loadYaml(confPath)
     logging.config.dictConfig(logConf)
 
-def loadYaml(path):
+def loadYaml(path: str) -> Config:
     with open(path) as f: 
         data = yaml.load(f.read(), Loader=yaml.SafeLoader) 
     # TODO: load and merge (?) config include

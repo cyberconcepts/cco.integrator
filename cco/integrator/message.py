@@ -7,9 +7,7 @@ Message types and related functions
 
 from cco.integrator.common import Named
 
-no_message = object()
-
-message_types = {}
+from typing import Any, Dict, Optional
 
 
 class MessageType(Named):
@@ -24,7 +22,6 @@ class InfoMT(MessageType):
 class CommandMT(MessageType):
     priority = 7
 
-
 quitMT = ControlMT('quit')
 systemMT = ControlMT('system')
 
@@ -37,18 +34,24 @@ createMT = CommandMT('create')
 updateMT = CommandMT('update')
 
 
-class Message(object):
+class Message:
 
-    def __init__(self, payload=None, type=dataMT):
+    def __init__(self, 
+                 payload: Dict[str, Any] = {}, 
+                 type: MessageType = dataMT) -> None:
         self.payload = payload
         self.type = type
         #self.timestamp = 
 
-    def __str__(self):
+    def __str__(self) -> str:
         return '<Message type=%s, payload=%s>' % (self.type.name, self.payload)
 
 
+no_message = Message(type=MessageType('empty'))
+
 quit = Message(type=quitMT)
+
+message_types: Dict[str, MessageType] = {}
 
 for mt in (quitMT, systemMT, dataMT, eventMT, queryMT,
            commandMT, createMT, updateMT):

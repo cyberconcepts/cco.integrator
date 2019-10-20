@@ -11,10 +11,10 @@ import sys
 from cco.integrator.config import Config
 from cco.integrator import context, process, registry
 from cco.integrator.mailbox import receive, send
-from cco.integrator.message import quit
+from cco.integrator.message import quit, Message
 from cco.integrator.registry import getHandler, declare_handlers
 
-from typing import cast, Optional
+from typing import cast, Dict, Optional
 
 Context = context.Context
 Registry = registry.Registry
@@ -23,8 +23,11 @@ Registry = registry.Registry
 def run(pctx: Context, name: str) -> None:
     ctx = setup(pctx, name)
     start = getHandler(ctx, 'start')
-    p = process.run(start, ctx, name)
-    pctx.children.append((p, ctx.mailbox))
+    if start is None:
+        ctx.logger.warn('start handler for %s not found' % name)
+    else:
+        p = process.run(start, ctx, name)
+        pctx.children.append((p, ctx.mailbox))
 
 def setup(pctx: Context, name: str) -> Context:
     conf = cast(Config, pctx.config.get(name, {}))
@@ -60,7 +63,7 @@ async def step(ctx: Context) -> bool:
     else:
         return await action(ctx, msg)
 
-async def action(ctx, msg) -> bool:
+async def action(ctx: Context, msg: Message) -> bool:
     # TODO: get handler/action using message type
     if  msg is quit:
         # TODO: use getHandler(ctx, 'do_quit')
@@ -68,11 +71,14 @@ async def action(ctx, msg) -> bool:
         cfg = None
     else:
         cmd = msg.payload.get('command') or '???'
-        cfg = ctx.config.get('actions', {}).get(cmd, {})
+        actions = ctx.config.get('actions', {})
+        cfg = cast(Dict, isinstance(actions, dict) and actions.get(cmd, {}))
         if not cfg:
             fct = do_ignore
         else:
-            hdl = getHandler(ctx, cfg.get('handler'), cfg.get('group'))
+            handler = cast(str, cfg.get('handler'))
+            group = cast(str, cfg.get('group'))
+            hdl = getHandler(ctx, handler, group)
             if hdl is None:
                 ctx.logger.warn('Handler not found, config is: %s' % cfg)
                 fct = do_quit
@@ -83,10 +89,10 @@ async def action(ctx, msg) -> bool:
 
 # message/action handlers
 
-async def do_ignore(ctx: Context, cfg: Optional[Config], msg: str) -> bool:
+async def do_ignore(ctx: Context, cfg: Optional[Config], msg: Message) -> bool:
     return True
 
-async def do_quit(ctx: Context, cfg: Optional[Config], msg: str) -> bool:
+async def do_quit(ctx: Context, cfg: Optional[Config], msg: Message) -> bool:
     for (p, mb) in ctx.children:
         if p.task.done():
             ctx.logger.warn('Task %s already finished' % p.name)

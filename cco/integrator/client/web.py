@@ -7,12 +7,13 @@ communicating with the top-level actor (dispatcher).
 
 from aiohttp import ClientSession
 
+from cco.integrator.context import Context
 from cco.integrator.mailbox import receive, send
-from cco.integrator.message import no_message, quit
-from cco.integrator.registry import getHandler, declare_handlers
+from cco.integrator.message import no_message, quit, Message
+from cco.integrator.registry import getHandler, declare_handlers, Registry
 
 
-async def start(ctx):
+async def start(ctx: Context) -> None:
     url = ctx.config.get('server-url')
     session = ClientSession()
     ctx.state = session
@@ -21,7 +22,7 @@ async def start(ctx):
     await listen(ctx)
     await session.close()
 
-async def action(ctx, msg):
+async def action(ctx: Context, msg: Message) -> bool:
     if  msg is quit:
         return False
     url = ctx.config.get('server-url') + msg.payload.get('path', '/')
@@ -35,7 +36,7 @@ async def action(ctx, msg):
 
 #*** register_handlers ***
 
-def register_handlers(reg):
+def register_handlers(reg: Registry) -> None:
     declare_handlers(
             [start, action], 
             'client.web', reg)
