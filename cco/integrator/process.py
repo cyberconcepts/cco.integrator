@@ -6,6 +6,7 @@ Creation and handling of actor processes (mostly just threads)
 '''
 
 from asyncio import create_task, Task
+from dataclasses import dataclass
 import traceback
 
 from cco.integrator.common import Named
@@ -19,17 +20,16 @@ else:
     Context = 'Context'
 
 
+@dataclass
 class Process(Named):
 
-    def __init__(self, task: Task, name: str):
-        self.task = task
-        self.name = name
+    task: Task
 
 
 def run(target: Callable, ctx: Context, name: str = '???') -> Process:
     #t = create_task(target(ctx))
     t = create_task(runExcept(target, ctx))
-    return Process(t, name)
+    return Process(name, t)
 
 async def runExcept(target: Callable, ctx: Context) -> None:
     try:

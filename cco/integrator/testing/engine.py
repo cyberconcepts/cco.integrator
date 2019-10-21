@@ -6,6 +6,7 @@ running tests and for collecting and presenting test results
 2019-06-19 helmutm@cy55.de
 '''
 
+from dataclasses import dataclass, field
 from glob import glob
 from os.path import abspath, basename, dirname, join
 import re
@@ -27,10 +28,10 @@ home: str = dirname(abspath(__file__))
 
 # test engine
 
+@dataclass
 class Result:
 
-    def __init__(self, text: str) -> None:
-        self.text = text
+    text: str
 
     def __str__(self) -> str:
         return self.text
@@ -39,12 +40,12 @@ ok = Result('OK')
 failed = Result('failed')
 
 
+@dataclass
 class Item:
 
-    def __init__(self, number: int, message: str, result: Result) -> None:
-        self.number = number
-        self.message = message
-        self.result = result
+    number: int
+    message: str
+    result: Result
 
     def show(self) -> None:
         print('test %02i %s %s' % (self.number, self.result, 

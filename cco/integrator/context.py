@@ -4,6 +4,8 @@ Context class and related functions
 2019-06-14 helmutm@cy55.de
 '''
 
+from dataclasses import dataclass, field
+from functools import partial
 from logging import getLogger, Logger
 
 from cco.integrator.config import loadConfig, Config
@@ -14,32 +16,25 @@ from cco.integrator.registry import default_registry, Registry
 from typing import Any, Dict, List, Optional, Tuple
 
 
+@dataclass
 class Context:
 
-    def __init__(self, 
-                 home: str = '.', 
-                 system: str = 'generic', 
-                 state: Any = None, 
-                 cfgname: str = 'config.yaml', 
-                 registry: Optional[Registry] = None, 
-                 services: Optional[Dict[str, Dict[str, Mailbox]]] = None, 
-                 parent_mb: Optional[Mailbox] = None,
-                 config: Optional[Config] = None, 
-                 logger: Optional[Logger] = None, 
-                 mailbox: Optional[Mailbox] = None, 
-                 children: Optional[List[Tuple[Process, Mailbox]]] = None, 
-                 pname: Optional[str] = None) -> None:
-        self.home = home
-        self.system = system
-        self.state = state
-        self.registry = registry or default_registry
-        self.services = services or {}
-        self.parent_mb = parent_mb
-        self.config = config or loadConfig(home, cfgname)
-        self.logger = logger or getLogger('cco.integrator')
-        self.mailbox = mailbox or createMailbox()
-        self.children = children or []
-        self.pname = pname
+    home:       str = '.'
+    system:     str = 'generic'
+    state:      Any = None
+    cfgname:    str = 'config.yaml'
+    registry:   Registry = default_registry
+    services:   Dict[str, Dict[str, Mailbox]] = field(default_factory=dict)
+    parent_mb:  Optional[Mailbox] = None
+    config:     Config = field(default_factory=dict)
+    logger:     Logger = field(default_factory=partial(getLogger, 'cco.integrator'))
+    mailbox:    Mailbox = field(default_factory=createMailbox)
+    children:   List[Tuple[Process, Mailbox]] = field(default_factory=list)
+    pname:      Optional[str] = None
+
+    def __post_init__(self):
+        if not self.config:
+            self.config = loadConfig(self.home, self.cfgname)
 
 
 def setup(**kw) -> Context:
