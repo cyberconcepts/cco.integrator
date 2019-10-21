@@ -5,7 +5,7 @@ communicating with the top-level actor (dispatcher).
 2019-06-27 helmutm@cy55.de
 '''
 
-from aiohttp import web
+from aiohttp import web # type: ignore
 
 from cco.integrator import actor
 from cco.integrator.context import Context
@@ -13,7 +13,9 @@ from cco.integrator.mailbox import receive, send
 from cco.integrator.message import no_message, quit
 from cco.integrator.registry import getHandler, declare_handlers, Registry
 
-from typing import Any, Dict, List
+from typing import cast, Any, Dict, List, Union
+
+MessageData = Union[str, Dict[str, Any]]
 
 
 async def start(ctx: Context) -> None:
@@ -22,6 +24,9 @@ async def start(ctx: Context) -> None:
     app['context'] = ctx
     routeCfgs = []
     rc1 = ctx.config.get('routes') or ['default-routes']
+    if not isinstance(rc1, list):
+        ctx.logger.warn('routes config setting %r is not a list' % rc1)
+        return
     for r in rc1:
         if isinstance(r, str):
             routeCfgs.extend(getPredefinedRoutes(r))
@@ -55,12 +60,12 @@ async def step(ctx: Context) -> bool:
     return True
 
 async def stop_site(ctx: Context) -> bool:
-    site = ctx.state
+    site = cast(web.TCPSite, ctx.state)
     await site.stop()
     return False
 
 
-def build_response(result: Dict[str, Any], msg: str) -> str:
+def build_response(result: str, msg: MessageData) -> str:
     data = {'result': result, 'message': msg}
     return web.json_response(data)
 
@@ -76,6 +81,7 @@ async def do_poll(request: web.Request) -> web.Response:
     cfg = request.app['routes'][request.match_info.route.name]
     timeout = cfg.get('timeout', 15)
     msg = await receive(ctx.parent_mb, timeout)
+    data: MessageData
     if msg is no_message:
         data = ''
         result = 'idle'
