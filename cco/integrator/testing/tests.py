@@ -33,7 +33,7 @@ async def test00(te: Test, ctx: Context) -> None:
     te.checkRegexAny(logMsgs, r'starting actor check-dir.*')
     te.checkRegexAny(logMsgs, r'starting actor worker.*')
     te.checkRegexAny(logMsgs, r'starting actor webserver.*')
-    te.checkRegexAny(logMsgs, r".* payload={.*'command': .*}.")
+    te.checkRegexAny(logMsgs, r".*payload={.*'command': .*}.")
     te.checkFiles(join(home, 'data', 'target'), ['test.txt'])
 
 async def test01(te: Test, ctx: Context) -> None:

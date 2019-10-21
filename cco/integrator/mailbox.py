@@ -6,16 +6,17 @@ Mailbox types with send and receive functions
 '''
 
 from asyncio import Queue, QueueEmpty, TimeoutError, wait_for
+from dataclasses import dataclass, field
 
 from cco.integrator.message import no_message, Message
 
 from typing import Optional
 
 
+@dataclass
 class Mailbox:
 
-    def __init__(self) -> None:
-        self.queue: Queue = Queue()
+    queue: Queue = field(default_factory=Queue)
 
 
 def createMailbox() -> Mailbox:

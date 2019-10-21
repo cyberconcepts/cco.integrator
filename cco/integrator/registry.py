@@ -5,6 +5,7 @@ Function registry for controlled dynamic addressing via config options
 
 '''
 
+from dataclasses import dataclass, field
 from importlib import import_module
 
 from typing import Callable, Dict, List, Optional, cast
@@ -15,22 +16,17 @@ if TYPE_CHECKING:
 else:
     Context = 'Context'
 
-class Registry:
 
-    def __init__(self) -> None:
-        self.groups: Dict[str, Group] = {}
-
-    def __str__(self) -> str:
-        return '<Registry groups=%s>' % self.groups
-
-
+@dataclass
 class Group:
 
-    def __init__(self) -> None:
-        self.handlers: Dict[str, Callable] = {}
+    handlers: Dict[str, Callable] = field(default_factory=dict)
 
-    def __str__(self) -> str:
-        return '<Group handlers=%s>' % self.handlers
+
+@dataclass
+class Registry:
+
+    groups: Dict[str, Group] = field(default_factory=dict)
 
 
 def getHandler(ctx: Context, name: str, 

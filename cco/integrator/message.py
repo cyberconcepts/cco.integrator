@@ -5,6 +5,8 @@ Message types and related functions
 
 '''
 
+from dataclasses import dataclass, field
+
 from cco.integrator.common import Named
 
 from typing import Any, Dict, Optional
@@ -34,17 +36,11 @@ createMT = CommandMT('create')
 updateMT = CommandMT('update')
 
 
+@dataclass
 class Message:
 
-    def __init__(self, 
-                 payload: Dict[str, Any] = {}, 
-                 type: MessageType = dataMT) -> None:
-        self.payload = payload
-        self.type = type
-        #self.timestamp = 
-
-    def __str__(self) -> str:
-        return '<Message type=%s, payload=%s>' % (self.type.name, self.payload)
+    payload: Dict[str, Any] = field(default_factory=dict)
+    type: MessageType = dataMT
 
 
 no_message = Message(type=MessageType('empty'))
