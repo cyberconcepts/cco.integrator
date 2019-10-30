@@ -33,10 +33,11 @@ async def start(ctx: Context) -> None:
         else:
             routeCfgs.append(r)
     app['routes'] = dict((r['name'], r) for r in routeCfgs)
-    routes = [web.get(rc['path'], 
-                      getHandler(ctx, rc['handler']),
-                      name=rc['name']) 
-                for rc in routeCfgs]
+    routes = [web.route(rc.get('method') or 'GET',
+                        rc['path'], 
+                        getHandler(ctx, rc['handler']),
+                        name=rc['name']) 
+              for rc in routeCfgs]
     app.add_routes(routes)
 
     runner = web.AppRunner(app)
