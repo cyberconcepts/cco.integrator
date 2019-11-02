@@ -35,6 +35,8 @@ setup(name='cco.integrator',
         'pyyaml',
         'mypy',
         'jsonschema',
+        'pytest',
+        'pytest-asyncio'
         #'prance',
         #'strawberry-graphql',
         # -*- Extra requirements: -*-
@@ -45,6 +47,7 @@ setup(name='cco.integrator',
         mypy = mypy.__main__:console_entry
         stubgen = mypy.stubgen:main
         jsonschema = jsonschema.cli:main
+        pytest = pytest:main
         # -*- Entry points: -*-
       """,
       )
