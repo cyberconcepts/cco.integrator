@@ -5,5 +5,5 @@ actors:
 
 webclient:
   group: client.web
-  server-url: http://localhost:8123/integrator
+  server-url: http://localhost:8999/integrator
   protocol: default

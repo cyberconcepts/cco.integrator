@@ -13,5 +13,5 @@ handlers:
 root:
   level: DEBUG
   handlers:
-    - queue
-    #- console
+  - queue
+  - console

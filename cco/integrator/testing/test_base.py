@@ -4,9 +4,12 @@ Tests for the 'cco.integrator' package for use with pytest.
 2019-11-02 helmutm@cy55.de
 '''
 
+import asyncio
+import functools
 from glob import glob
 from os.path import abspath, basename, dirname, join
 import os
+import re
 import shutil
 
 from cco.integrator import config, context, dispatcher, registry, system
@@ -22,58 +25,74 @@ Context = context.Context
 
 home: str = dirname(abspath(__file__))
 
+contexts = []
 
-# fixture stuff
 
-@pytest.fixture(scope='module')
-def integrator_base():
-    pass
+# fixtures
+
+@pytest.yield_fixture(scope='module')
+def event_loop(request):
+    loop = asyncio.get_event_loop_policy().new_event_loop()
+    yield loop
+    loop.close()
+
+@pytest.yield_fixture(scope='module')
+def integrator_base(event_loop):
+    config.loadLoggerConf(home, 'logging.yaml')
+    prepareFiles()
+    yield
+    wrap_in_sync(stop_actors)
 
 @pytest.fixture
-def make_context(request):
-    contexts = []
-    async def stop_integrator():
-        for ctx in contexts:
-            await base_teardown(ctx)
+def make_context(integrator_base):
     async def start_integrator(cfgname):
         ctx = await base_setup(cfgname)
         contexts.append(ctx)
-        request.addfinalizer(stop_integrator)
         return ctx
-        #yield ctx
-        #await base_teardown(ctx)
     return start_integrator
 
 
+# the real setup and teardown stuff
+
 async def base_setup(cfgname):
+    loggerQueue.clear()
     reg = registry.load()
-    config.loadLoggerConf(home, 'logging.yaml')
+    #config.loadLoggerConf(home, 'logging.yaml')
     ctx = context.setup(
             system='test', home=home, cfgname=cfgname, registry=reg)
     dispatcher.run(ctx)
     await system.wait()
     return ctx
 
+async def stop_actors():
+    for ctx in contexts:
+        await base_teardown(ctx)
+
 async def base_teardown(ctx):
-    print('teardown')
     await send(ctx.mailbox, quit)
 
 
 # tests
 
 @pytest.mark.asyncio
-async def test_0(integrator_base):
-    ctx = await base_setup('config-t0.yaml')
-    #ctx = make_context('config-t0.yaml')
+async def test_0(make_context):
+    ctx = await make_context('config-t0.yaml')
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     assert len(ctx.children) == 3
-    await base_teardown(ctx)
+    assert checkRegexAny(logMsgs, r'starting actor check-dir.*')
+    assert checkFiles(join(home, 'data', 'target'), ['test.txt'])
 
 @pytest.mark.asyncio
-async def test_1(make_context, integrator_base):
+async def test_1(make_context):
     ctx = await make_context('config-t1.yaml')
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     assert len(ctx.children) == 1
-    #ctx = await base_setup('config-t1.yaml')
-    await base_teardown(ctx)
+    assert checkRegexAny(logMsgs, r'starting actor webclient.*')
+    (p, mb) = ctx.children[0]
+    await send(mb, Message(dict(value='dummy'), dataMT))
+    await system.wait()
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
+    assert checkRegexAny(logMsgs, r'dummy.*')
 
 
 # utilities
@@ -90,4 +109,32 @@ def checkRegexAny(coll: Collection[str], pattern: str) -> bool:
 def checkFiles(path: str, vx: List[str]) -> bool:
     vc = [basename(p) for p in glob(join(path, '*'))]
     return sorted(vc) == sorted(vx)
+
+def prepareFiles() -> None:
+    dataDir = join(home, 'data')
+    targetDir = join(dataDir, 'target')
+    backupDir = join(dataDir, 'backup')
+    filenames = glob(join(targetDir, '*'))
+    for fn in filenames:
+        try:
+            fn = basename(fn)
+            shutil.copy2(join(targetDir, fn), dataDir)
+            os.remove(join(targetDir, fn))
+            os.remove(join(backupDir, fn))
+        except IOError:
+            pass
+
+def wrap_in_sync(func): # taken from pytest_asyncio
+    @functools.wraps(func)
+    def inner(**kwargs):
+        coro = func(**kwargs)
+        if coro is not None:
+            task = asyncio.ensure_future(coro)
+            try:
+                asyncio.get_event_loop().run_until_complete(task)
+            except BaseException:
+                if task.done() and not task.cancelled():
+                    task.exception()
+                raise
+    return inner
 

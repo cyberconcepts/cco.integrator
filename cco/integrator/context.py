@@ -27,7 +27,7 @@ class Context:
     services:   Dict[str, Dict[str, Mailbox]] = field(default_factory=dict)
     parent_mb:  Optional[Mailbox] = None
     config:     Config = field(default_factory=dict)
-    logger:     Logger = field(default_factory=partial(getLogger, 'cco.integrator'))
+    logger:     Logger = field(default_factory=partial(getLogger, 'integrator'))
     mailbox:    Mailbox = field(default_factory=createMailbox)
     children:   List[Tuple[Process, Mailbox]] = field(default_factory=list)
     pname:      Optional[str] = None

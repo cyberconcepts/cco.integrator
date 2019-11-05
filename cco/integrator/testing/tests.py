@@ -9,7 +9,7 @@ from os.path import abspath, basename, dirname, join
 import os
 import shutil
 
-from cco.integrator import context, dispatcher, registry, system
+from cco.integrator import config, context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
 from cco.integrator.testing import engine
@@ -40,6 +40,9 @@ async def test01(te: Test, ctx: Context) -> None:
     te.checkEqual(len(ctx.children), 1)
     (p, mb) = ctx.children[0]
     await send(mb, Message(dict(value='dummy'), dataMT))
+    await system.wait()
+    logMsgs = [lr.msg % lr.args for lr in loggerQueue]
+    te.checkRegexAny(logMsgs, r'dummy')
 
 
 tests: List[Test] = [
@@ -51,6 +54,7 @@ tests: List[Test] = [
 # init / setup, teardown / finish
 
 async def init() -> None:
+    config.loadLoggerConf(home, 'logging.yaml')
     prepareFiles()
 
 def prepareFiles() -> None:

@@ -15,6 +15,7 @@ import traceback
 from cco.integrator import config, context, dispatcher, registry, system
 from cco.integrator.mailbox import send
 from cco.integrator.message import Message, dataMT, quit
+from cco.integrator.testing.logger import loggerQueue
 
 from typing import Any, Callable, Collection, Coroutine, List
 from typing import Match, Optional, TypeVar, Union
@@ -126,12 +127,13 @@ class Test:
 # testing functions
 
 async def init() -> None:
-    pass
+    config.loadLoggerConf(home, 'logging.yaml')
 
 async def setup(test: Test, 
                 home: str) -> Context:
+    loggerQueue.clear()
     reg = registry.load()
-    config.loadLoggerConf(home, test.loggername)
+    #config.loadLoggerConf(home, test.loggername)
     ctx = context.setup(
             system='test', home=home, cfgname=test.cfgname, registry=reg)
     dispatcher.run(ctx)
