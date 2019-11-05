@@ -36,12 +36,10 @@ def event_loop(request):
     yield loop
     loop.close()
 
-@pytest.yield_fixture(scope='module')
+@pytest.fixture(scope='module')
 def integrator_base(event_loop):
     config.loadLoggerConf(home, 'logging.yaml')
     prepareFiles()
-    yield
-    wrap_in_sync(stop_actors)
 
 @pytest.fixture
 def make_context(integrator_base):
@@ -66,10 +64,8 @@ async def base_setup(cfgname):
 
 async def stop_actors():
     for ctx in contexts:
-        await base_teardown(ctx)
-
-async def base_teardown(ctx):
-    await send(ctx.mailbox, quit)
+        await send(ctx.mailbox, quit)
+        await system.wait()
 
 
 # tests
@@ -94,6 +90,9 @@ async def test_1(make_context):
     logMsgs = [lr.msg % lr.args for lr in loggerQueue]
     assert checkRegexAny(logMsgs, r'dummy.*')
 
+@pytest.mark.asyncio
+async def test_z():
+    await stop_actors()
 
 # utilities
 
@@ -123,18 +122,3 @@ def prepareFiles() -> None:
             os.remove(join(backupDir, fn))
         except IOError:
             pass
-
-def wrap_in_sync(func): # taken from pytest_asyncio
-    @functools.wraps(func)
-    def inner(**kwargs):
-        coro = func(**kwargs)
-        if coro is not None:
-            task = asyncio.ensure_future(coro)
-            try:
-                asyncio.get_event_loop().run_until_complete(task)
-            except BaseException:
-                if task.done() and not task.cancelled():
-                    task.exception()
-                raise
-    return inner
-
