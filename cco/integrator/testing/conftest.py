@@ -7,8 +7,8 @@ Common pytest configuration and fixtures.
 import asyncio
 import pytest
 from cco.integrator import config
-from cco.integrator.testing.common import \
-            base_setup, contexts, home, prepareFiles
+from cco.integrator.testing.common import base_setup, home, prepareFiles
+from cco.integrator.testing.logger import loggerQueue
 
 
 @pytest.yield_fixture(scope='module')
@@ -23,10 +23,12 @@ def integrator_base(event_loop):
     prepareFiles()
 
 @pytest.fixture
-def make_context(integrator_base):
+def clear_logs(integrator_base):
+    loggerQueue.clear()
+
+@pytest.fixture
+def make_context(clear_logs):
     async def start_integrator(cfgname):
-        ctx = await base_setup(cfgname)
-        contexts.append(ctx)
-        return ctx
+        return await base_setup(cfgname)
     return start_integrator
 

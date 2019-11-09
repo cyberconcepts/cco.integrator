@@ -17,23 +17,24 @@ from cco.integrator.testing.logger import loggerQueue
 
 from typing import Collection, List
 
+Context = context.Context
+
 home: str = dirname(abspath(__file__))
+contexts: List[Context] = []
 
-contexts = []
 
+# setup and teardown stuff
 
-# setup stuff
-
-async def base_setup(cfgname):
-    loggerQueue.clear()
+async def base_setup(cfgname: str) -> Context:
     reg = registry.load()
     ctx = context.setup(
             system='test', home=home, cfgname=cfgname, registry=reg)
     dispatcher.run(ctx)
     await system.wait()
+    contexts.append(ctx)
     return ctx
 
-async def stop_actors():
+async def stop_actors() -> None:
     for ctx in contexts:
         await send(ctx.mailbox, quit)
         await system.wait()
