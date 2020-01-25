@@ -15,6 +15,7 @@ from cco.integrator.registry import getHandler, declare_handlers, Registry
 from typing import cast
 
 
+#@handler   #('cco.integrator.client.web', 'start')
 async def start(ctx: Context) -> None:
     url = ctx.config.get('server-url')
     session = ClientSession()
